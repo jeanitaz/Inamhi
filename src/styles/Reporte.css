@@ -1,10 +1,12 @@
+/* --- LAYOUT GENERAL --- */
 .reports-container {
     min-height: 100vh;
-    background: radial-gradient(ellipse at bottom, #ffffff 0%, #ffffff 100%);
-    color: #e2e8f0;
+    /* Fondo gris muy suave para resaltar las tarjetas blancas */
+    background-color: #f1f5f9; 
+    color: #1e293b; /* Texto casi negro (Slate 800) */
     padding: 2rem;
     position: relative;
-    overflow-x: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .reports-header {
@@ -12,121 +14,133 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    position: relative;
-    z-index: 10;
 }
 
 .reports-header h1 {
     font-size: 1.8rem;
-    background: linear-gradient(to right, #ffffff 0%, #ffffff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    /* Azul corporativo oscuro */
+    color: #0f172a; 
     margin: 0;
+    font-weight: 800;
 }
 
-/* Botones */
+/* --- BOTONES --- */
 .btn-back-nav {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #000000;
+    color: #475569;
     text-decoration: none;
+    font-weight: 600;
     transition: color 0.3s;
 }
-.btn-back-nav:hover { color: #fff; }
+.btn-back-nav:hover { color: #0f172a; }
 
 .btn-export {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.5);
-    color: #60a5fa;
-    padding: 0.6rem 1.2rem;
+    background: #2563eb; /* Azul brillante sólido */
+    border: none;
+    color: #ffffff;
+    padding: 0.7rem 1.5rem;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s;
 }
 
 .btn-export:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
 }
 
 .btn-export:disabled {
-    opacity: 0.5;
+    opacity: 0.7;
     cursor: wait;
+    background: #94a3b8;
 }
 
-/* Grid Layout */
+/* --- GRID --- */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto auto auto; /* 3 filas automáticas */
     gap: 1.5rem;
-    padding: 1rem;
-    /* Fondo para exportación PDF limpia */
+    /* IMPORTANTE: Fondo transparente para que el PDF use su propio blanco */
     background: transparent; 
 }
 
-/* Estilos de Tarjetas (Glassmorphism) */
+/* --- TARJETAS (Estilo limpio para impresión) --- */
 .card {
-    background: rgba(30, 41, 59, 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
+    /* Fondo blanco puro para máximo contraste */
+    background: #ffffff;
+    border: 1px solid #e2e8f0; /* Borde gris muy sutil */
+    border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* Sombra suave que se ve bien en pantalla pero no molesta en PDF */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
 }
 
 .card:hover {
-    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .card h3 {
-    color: #000000;
-    font-size: 0.9rem;
+    color: #64748b; /* Gris medio para títulos */
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.5rem;
 }
 
-/* Specific Card Sizes */
+/* Tamaños específicos */
 .wide { grid-column: span 2; }
 .kpi-card { grid-column: span 1; display: flex; flex-direction: column; justify-content: center; }
-.chart-card { min-height: 300px; }
+.chart-card { min-height: 320px; }
 
-/* KPI Styles */
+/* --- KPIs --- */
 .kpi-value {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #fff;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a; /* Negro azulado */
+    line-height: 1;
+    margin-bottom: 0.5rem;
 }
-.kpi-value small { font-size: 1rem; color: #64748b; }
 
-.kpi-trend { font-size: 0.9rem; margin-top: 0.5rem; }
-.kpi-trend.positive { color: #4ade80; }
-.kpi-sub { font-size: 0.8rem; color: #ffffff; margin-top: 0.5rem; }
+.kpi-trend { font-size: 0.85rem; font-weight: 600; }
+.kpi-trend.positive { color: #16a34a; } /* Verde legible */
+.kpi-sub { font-size: 0.85rem; color: #64748b; margin-top: 0.2rem; }
 
-/* Lista de Estadísticas */
+/* --- LISTA DE ESTADÍSTICAS --- */
 .stats-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
-.stats-list li { margin-bottom: 1.2rem; }
-.stat-info { display: flex; justify-content: space-between; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.stats-list li { margin-bottom: 1.5rem; }
+
+.stat-info { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 0.5rem; 
+    font-size: 0.95rem; 
+}
+
 .progress-bar {
-    height: 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
+    height: 10px;
+    background: #f1f5f9; /* Fondo de barra gris claro */
+    border-radius: 99px;
     overflow: hidden;
 }
-.progress-fill { height: 100%; border-radius: 4px; }
+.progress-fill { height: 100%; border-radius: 99px; }
 
-/* Responsive */
+/* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
     .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
     .wide { grid-column: span 2; }

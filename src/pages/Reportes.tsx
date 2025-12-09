@@ -12,7 +12,15 @@ import '../styles/Reporte.css';
 const DownloadIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>);
 const BackIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>);
 
-const COLORS = ['#0088FE', '#FF8042', '#00C49F', '#FFBB28', '#8884d8', '#82ca9d'];
+
+const COLORS = [
+    '#0f4c81', // Azul Clásico Oscuro
+    '#e11d48', // Rojo Rosa Intenso
+    '#059669', // Verde Esmeralda
+    '#d97706', // Ámbar Oscuro
+    '#7c3aed', // Violeta Vibrante
+    '#0891b2'  // Cian Oscuro
+];
 
 interface Ticket {
     id: string;
@@ -93,7 +101,7 @@ const ReportsView = () => {
         // 5. Mensual
         const monthMap: Record<string, number> = {};
         const monthsOrder = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        
+
         tickets.forEach(t => {
             if (t.date) {
                 const parts = t.date.split('/');
@@ -121,17 +129,15 @@ const ReportsView = () => {
         setLoadingPdf(true);
         try {
             const canvas = await html2canvas(element, {
-                scale: 2, // Buena calidad
-                backgroundColor: '#ffffff', // Fondo blanco
+                scale: 2,
+                backgroundColor: '#ffffff', // Fondo blanco forzado
+                logging: false
             });
 
             const imgData = canvas.toDataURL('image/png');
-            
-            // CAMBIO CLAVE AQUÍ: 'l' para Landscape (Horizontal)
-            const pdf = new jsPDF('l', 'mm', 'a4'); 
+            const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            // Calculamos el alto proporcional para que no se estire la imagen
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
@@ -142,8 +148,21 @@ const ReportsView = () => {
         setLoadingPdf(false);
     };
 
+    // Estilos comunes para tooltips
+    const tooltipStyle = {
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        border: '1px solid #e2e8f0',
+        color: '#1e293b',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+    };
+
+    // Estilos comunes para texto de ejes (Gris Oscuro)
+    const axisStyle = { fontSize: '0.75rem', fontWeight: '600', fill: '#475569' };
+
     return (
         <div className="reports-container">
+            {/* Fondo decorativo (opcional si usas el CSS nuevo) */}
             <div className="stars"></div>
 
             <div className="reports-header">
@@ -173,8 +192,8 @@ const ReportsView = () => {
                 <div className="card kpi-card">
                     <h3>Eficacia Global</h3>
                     <div className="kpi-value">
-                        {totalTickets > 0 
-                            ? Math.round((dataStatus.find(s => s.name === 'Resuelto')?.value || 0) / totalTickets * 100) 
+                        {totalTickets > 0
+                            ? Math.round((dataStatus.find(s => s.name === 'Resuelto')?.value || 0) / totalTickets * 100)
                             : 0}%
                     </div>
                     <span className="kpi-sub">Tasa de resolución</span>
@@ -186,15 +205,16 @@ const ReportsView = () => {
                         <AreaChart data={dataMonthly}>
                             <defs>
                                 <linearGradient id="colorTickets" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#0f4c81" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#0f4c81" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                            <XAxis dataKey="name" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
-                            <Area type="monotone" dataKey="tickets" stroke="#8884d8" fillOpacity={1} fill="url(#colorTickets)" />
+                            {/* Grilla gris claro visible en fondo blanco */}
+                            <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" />
+                            <XAxis dataKey="name" stroke="#cbd5e1" tick={axisStyle} />
+                            <YAxis stroke="#cbd5e1" tick={axisStyle} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Area type="monotone" dataKey="tickets" stroke="#0f4c81" strokeWidth={3} fillOpacity={1} fill="url(#colorTickets)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
@@ -214,12 +234,12 @@ const ReportsView = () => {
                                 paddingAngle={5}
                                 dataKey="value"
                             >
-                                {dataStatus.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.name === 'Resuelto' ? '#1b6821ff' : (entry.name === 'En Proceso' ? '#FFBB28' : '#FF8042')} />
+                                {dataStatus.map((_, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
                                 ))}
                             </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
-                            <Legend verticalAlign="bottom" height={36} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Legend verticalAlign="bottom" height={36} formatter={(value) => <span style={{ color: '#334155', fontWeight: 600 }}>{value}</span>} />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
@@ -228,11 +248,11 @@ const ReportsView = () => {
                     <h3>Por Dirección / Área</h3>
                     <ResponsiveContainer width="100%" height={250}>
                         <BarChart data={dataArea} layout="vertical">
-                            <CartesianGrid strokeDasharray="3 3" stroke="#444" horizontal={false} />
-                            <XAxis type="number" stroke="#ccc" hide />
-                            <YAxis dataKey="name" type="category" width={100} stroke="#ccc" style={{ fontSize: '0.8rem' }} />
-                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
-                            <Bar dataKey="tickets" fill="#0088FE" radius={[0, 4, 4, 0]} barSize={20} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" horizontal={false} />
+                            <XAxis type="number" stroke="#cbd5e1" hide />
+                            <YAxis dataKey="name" type="category" width={100} stroke="#cbd5e1" tick={axisStyle} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Bar dataKey="tickets" fill="#0f4c81" radius={[0, 4, 4, 0]} barSize={20} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -242,12 +262,12 @@ const ReportsView = () => {
                     <h3>Rendimiento por Técnico (Tickets Tomados)</h3>
                     <ResponsiveContainer width="100%" height={250}>
                         <BarChart data={dataTech}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#444" vertical={false} />
-                            <XAxis dataKey="name" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
-                            <Legend />
-                            <Bar dataKey="tickets" name="Tickets Asignados/Resueltos" fill="#1b3668ff" radius={[4, 4, 0, 0]} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" vertical={false} />
+                            <XAxis dataKey="name" stroke="#cbd5e1" tick={axisStyle} />
+                            <YAxis stroke="#cbd5e1" tick={axisStyle} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Legend formatter={(value) => <span style={{ color: '#334155' }}>{value}</span>} />
+                            <Bar dataKey="tickets" name="Tickets Resueltos" fill="#059669" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -258,8 +278,8 @@ const ReportsView = () => {
                         {dataType.map((item, idx) => (
                             <li key={idx}>
                                 <div className="stat-info">
-                                    <span>{item.name}</span>
-                                    <span className="count">{item.count}</span>
+                                    <span style={{ color: '#334155', fontWeight: 600 }}>{item.name}</span>
+                                    <span className="count" style={{ color: '#0f4c81', fontWeight: 'bold' }}>{item.count}</span>
                                 </div>
                                 <div className="progress-bar">
                                     <div
