@@ -149,8 +149,6 @@ const CreacionUsuarios = () => {
                                         <label>Departamento</label>
                                         <select name="departamento" value={formData.departamento} onChange={handleChange}>
                                             <option value="TICS">TICS</option>
-                                            <option value="Administrativo">Administrativo</option>
-                                            <option value="Meteorología">Meteorología</option>
                                         </select>
                                     </div>
                                 </div>
