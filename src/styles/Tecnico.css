@@ -1,0 +1,182 @@
+:root {
+  --adm-bg-dark: #0f172a;
+  --adm-bg-glass: rgba(15, 23, 42, 0.6);
+  --adm-bg-glass-hover: rgba(30, 41, 59, 0.8);
+  --adm-border: rgba(255, 255, 255, 0.08);
+  
+  --adm-text-main: #f8fafc;
+  --adm-text-muted: #94a3b8;
+  
+  --neon-blue: #3b82f6;
+  --neon-purple: #8b5cf6;
+  --neon-green: #10b981;
+  --neon-red: #ef4444;
+  --neon-amber: #f59e0b;
+
+  --sidebar-width: 280px;
+}
+
+/* Badge en Sidebar */
+.badge-pill {
+    background: rgba(255,255,255,0.1);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto; /* Empuja a la derecha */
+}
+.badge-pill.warning { background: var(--neon-amber); color: #000; }
+
+/* Grid de KPIs pequeños */
+.kpi-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Grid de Tickets */
+.tickets-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* --- TARJETA DE TICKET (GLASS) --- */
+.glass-ticket-card {
+    background: var(--adm-bg-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--adm-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.glass-ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    border-color: rgba(255,255,255,0.2);
+}
+
+/* Indicador de Prioridad (Borde izquierdo neón) */
+.glass-ticket-card.priority-alta { border-left: 4px solid var(--neon-red); }
+.glass-ticket-card.priority-media { border-left: 4px solid var(--neon-amber); }
+.glass-ticket-card.priority-baja { border-left: 4px solid var(--neon-green); }
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.ticket-id {
+    font-family: monospace;
+    color: var(--adm-text-muted);
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+.status-badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--neon-amber); border: 1px solid var(--neon-amber); }
+.status-badge.done { background: rgba(16, 185, 129, 0.2); color: var(--neon-green); border: 1px solid var(--neon-green); }
+
+.ticket-body h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--adm-text-main);
+}
+
+.ticket-body .desc {
+    font-size: 0.9rem;
+    color: var(--adm-text-muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ticket-meta {
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.meta-item .label { color: var(--adm-text-muted); margin-right: 5px; }
+.prio-text.alta { color: var(--neon-red); font-weight: bold; }
+.prio-text.media { color: var(--neon-amber); font-weight: bold; }
+.prio-text.baja { color: var(--neon-green); font-weight: bold; }
+
+/* Footer de Botones */
+.ticket-footer {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.full-width { flex: 1; }
+
+/* Botones Adicionales */
+.btn-glass {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    flex: 1;
+}
+.btn-glass:hover { background: rgba(255,255,255,0.1); }
+
+.btn-neon-green {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 600;
+    flex: 1;
+}
+.btn-neon-green:hover {
+    background: var(--neon-green);
+    color: white;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Empty State */
+.empty-state-glass {
+    grid-column: 1 / -1;
+    background: rgba(255,255,255,0.02);
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    color: var(--adm-text-muted);
+}
+.empty-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.5; }
+
+/* Date Badge Header */
+.date-badge {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-family: monospace;
+    border: 1px solid rgba(255,255,255,0.1);
+}

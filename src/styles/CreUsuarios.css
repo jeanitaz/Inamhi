@@ -1,0 +1,337 @@
+/* --- VARIABLES LOCALES (Por si no están globales) --- */
+:root {
+    --modal-bg: rgba(15, 23, 42, 0.95);
+    --modal-border: rgba(59, 130, 246, 0.3);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --neon-accent: #3b82f6;
+    --input-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Layout específico del contenedor del formulario */
+.form-container-centered {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+    height: 100%;
+}
+
+/* --- TARJETA DE VIDRIO (GLASS CARD) --- */
+.glass-form-card {
+    background: rgba(15, 23, 42, 0.6); /* Fondo semi-transparente */
+    backdrop-filter: blur(16px);       /* Efecto borroso fuerte */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 600px; /* Ancho máximo para que no se estire demasiado */
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto de borde brillante superior */
+.glass-form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    opacity: 0.5;
+}
+
+/* Header del Formulario */
+.form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.icon-circle {
+    width: 60px; height: 60px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid var(--neon-blue);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.form-header h2 {
+    margin: 0;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.form-header p {
+    color: var(--adm-text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* --- ESTILOS DEL FORMULARIO --- */
+.cyber-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--adm-text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs mejorados */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--neon-blue);
+    opacity: 0.8;
+    font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px 14px 14px 45px; /* Espacio para el icono */
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Toggle Password */
+.toggle-pass {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--adm-text-muted);
+    transition: 0.2s;
+}
+.toggle-pass:hover { color: white; }
+
+/* Grid de filas */
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+}
+.half { flex: 1; }
+
+/* --- BOTONES DE ACCIÓN --- */
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-ghost {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--adm-text-muted);
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-ghost:hover {
+    border-color: white;
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.btn-neon-primary {
+    flex: 2; /* Más grande que el cancelar */
+    background: linear-gradient(135deg, var(--neon-blue), #2563eb);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: 0.3s;
+}
+
+.btn-neon-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    filter: brightness(1.1);
+}
+
+/* Header Botón volver */
+.btn-back {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--adm-text-muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.1); color: white; }
+
+/* --- ESTILOS DEL MODAL --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.animate-pop {
+    animation: popIn 0.3s ease-out forwards;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Reutiliza estilos existentes si ya los tienes, o agrega estos */
+.modal-content {
+    background: rgba(18, 18, 28, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+}
+
+/* Nuevo Layout Grid */
+.creation-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* Formulario más ancho que info */
+    gap: 2rem;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Columna Derecha (Info) */
+.info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Tarjetas Informativas */
+.info-card {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.info-card h3 {
+    color: #fff;
+    margin: 0.5rem 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.info-card p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Variantes de color */
+.warning-card {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+}
+
+.info-blue {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+}
+
+.success-card {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+}
+
+/* Lista dentro de tarjeta */
+.info-list {
+    padding-left: 1.2rem;
+    margin: 0;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+.info-list li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .creation-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+    }
+    
+    .info-column {
+        flex-direction: row; /* En tablets, poner cards abajo en fila */
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+    
+    .info-card {
+        min-width: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .info-column {
+        flex-direction: column; /* En móvil puro, columna vertical */
+    }
+    .info-card {
+        min-width: auto;
+    }
+}

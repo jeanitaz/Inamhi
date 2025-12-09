@@ -1,0 +1,138 @@
+.reports-container {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at bottom, #ffffff 0%, #ffffff 100%);
+    color: #e2e8f0;
+    padding: 2rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.reports-header h1 {
+    font-size: 1.8rem;
+    background: linear-gradient(to right, #ffffff 0%, #ffffff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+/* Botones */
+.btn-back-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000000;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.btn-back-nav:hover { color: #fff; }
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #60a5fa;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-export:hover:not(:disabled) {
+    background: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-export:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto auto auto; /* 3 filas automáticas */
+    gap: 1.5rem;
+    padding: 1rem;
+    /* Fondo para exportación PDF limpia */
+    background: transparent; 
+}
+
+/* Estilos de Tarjetas (Glassmorphism) */
+.card {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.card h3 {
+    color: #000000;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+/* Specific Card Sizes */
+.wide { grid-column: span 2; }
+.kpi-card { grid-column: span 1; display: flex; flex-direction: column; justify-content: center; }
+.chart-card { min-height: 300px; }
+
+/* KPI Styles */
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+.kpi-value small { font-size: 1rem; color: #64748b; }
+
+.kpi-trend { font-size: 0.9rem; margin-top: 0.5rem; }
+.kpi-trend.positive { color: #4ade80; }
+.kpi-sub { font-size: 0.8rem; color: #ffffff; margin-top: 0.5rem; }
+
+/* Lista de Estadísticas */
+.stats-list {
+    list-style: none;
+    padding: 0;
+}
+.stats-list li { margin-bottom: 1.2rem; }
+.stat-info { display: flex; justify-content: space-between; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.progress-fill { height: 100%; border-radius: 4px; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .wide { grid-column: span 2; }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid { display: flex; flex-direction: column; }
+    .reports-header { flex-direction: column; gap: 1rem; text-align: center; }
+}

@@ -1,0 +1,366 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;500;700&display=swap');
+
+/* --- VARIABLES --- */
+:root {
+    --bg-deep: #020617;
+    --accent-admin: #3b82f6; /* Azul brillante */
+    --accent-tech: #14b8a6;  /* Verde azulado eléctrico */
+    --glass-bg: rgba(15, 23, 42, 0.75); /* Un poco más oscuro para mejor lectura */
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+}
+
+/* --- CONTENEDOR PRINCIPAL (FONDO) --- */
+.login-universe {
+    width: 100vw;
+    height: 100vh;
+    /* Imagen de fondo relacionada con el clima (Nubes/Tormenta/Atmósfera) */
+    background-image: url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=2551&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Exo 2', sans-serif;
+    color: var(--text-main);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Capa oscura (Overlay) para que el texto sea legible sobre la imagen */
+.login-universe::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(2, 6, 23, 0.85), rgba(15, 23, 42, 0.9));
+    z-index: 1;
+    transition: background 0.5s ease;
+}
+
+/* Cambio sutil de tinte en el fondo según el rol */
+.login-universe.admin::before {
+    background: linear-gradient(135deg, rgba(2, 6, 23, 0.85), rgba(30, 58, 138, 0.8)); /* Tinte Azulado */
+}
+
+.login-universe.tecnico::before {
+    background: linear-gradient(135deg, rgba(2, 6, 23, 0.85), rgba(13, 148, 136, 0.8)); /* Tinte Verdoso */
+}
+
+/* --- TARJETA DE CRISTAL (PANEL) --- */
+.glass-panel {
+    position: relative;
+    z-index: 10; /* Encima del overlay */
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+/* Resplandor dinámico según rol */
+.login-universe.admin .glass-panel {
+    box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.login-universe.tecnico .glass-panel {
+    box-shadow: 0 0 50px rgba(20, 184, 166, 0.2);
+    border-color: rgba(20, 184, 166, 0.4);
+}
+
+/* Header */
+.panel-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-badge {
+    background: rgba(255, 255, 255, 0.95);
+    width: 90px;
+    height: 90px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 30px rgba(255,255,255,0.15);
+    transition: transform 0.3s ease;
+}
+
+.logo-badge:hover {
+    transform: scale(1.05);
+}
+
+.logo-badge img {
+    width: 70px;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.panel-header p {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* --- SELECTOR DE ROL (TARJETAS) --- */
+.role-cards {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.role-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.role-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.role-card .icon-box {
+    width: 32px;
+    height: 32px;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+.role-card span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+/* Estado Activo - Admin */
+.login-universe.admin .role-card.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--accent-admin);
+}
+.login-universe.admin .role-card.active .icon-box,
+.login-universe.admin .role-card.active span {
+    color: var(--accent-admin);
+}
+
+/* Estado Activo - Tecnico */
+.login-universe.tecnico .role-card.active {
+    background: rgba(20, 184, 166, 0.2);
+    border-color: var(--accent-tech);
+}
+.login-universe.tecnico .role-card.active .icon-box,
+.login-universe.tecnico .role-card.active span {
+    color: var(--accent-tech);
+}
+
+/* --- FORMULARIO --- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Inputs estilo Material Dark */
+.input-field {
+    position: relative;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-field label {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: all 0.3s;
+    background: transparent;
+    padding: 0 4px;
+}
+
+/* Focus effects */
+.input-field input:focus,
+.input-field input:not(:placeholder-shown) {
+    border-color: var(--text-muted);
+    background: rgba(0,0,0,0.5);
+}
+
+.login-universe.admin .input-field input:focus { border-color: var(--accent-admin); }
+.login-universe.tecnico .input-field input:focus { border-color: var(--accent-tech); }
+
+.input-field input:focus + label,
+.input-field input:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 12px;
+    font-size: 0.75rem;
+    color: var(--text-main);
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8); /* Sombra para leer sobre cualquier fondo */
+}
+
+/* Botón Brillante */
+.btn-glow {
+    margin-top: 10px;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto de brillo en hover */
+.btn-glow::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+.btn-glow:hover::after {
+    left: 100%;
+}
+
+/* Color botón dinámico */
+.login-universe.admin .btn-glow {
+    background: var(--accent-admin);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+.login-universe.admin .btn-glow:hover {
+    background: #2563eb;
+    box-shadow: 0 6px 25px rgba(59, 130, 246, 0.6);
+    transform: translateY(-2px);
+}
+
+.login-universe.tecnico .btn-glow {
+    background: var(--accent-tech);
+    box-shadow: 0 4px 20px rgba(20, 184, 166, 0.4);
+}
+.login-universe.tecnico .btn-glow:hover {
+    background: #0d9488;
+    box-shadow: 0 6px 25px rgba(20, 184, 166, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Error */
+.error-pill {
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    color: #fca5a5;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Footer */
+.panel-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+}
+
+/* Contenedor para alinear el botón */
+.panel-navigation {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+/* Estilo del botón de regreso */
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.btn-back:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-3px); /* Pequeña animación hacia la izquierda */
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Animación de entrada */
+.animate-pop-in {
+    animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+}
+
+@keyframes popIn {
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .glass-panel {
+        padding: 30px 20px;
+        width: 90%;
+    }
+}

@@ -1,0 +1,90 @@
+
+.historial-container {
+    background: #ffffff;
+    border: 1px solid #e6eef8;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(10, 20, 50, 0.06);
+}
+
+.historial-container h2{
+    margin: 0 0 12px 0;
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.historial-container .controls{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.historial-container input[type="search"]{
+    flex:1;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #e6e9ef;
+    background:#fbfdff;
+    font-size:14px;
+}
+
+.historial-container .submit-btn{
+    background:#0b5ed7;
+    color:#fff;
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+}
+.historial-container .submit-btn:hover{background:#094bb5}
+
+.historial-container .btn-danger{
+    background:#ef4444;color:#fff;border:none;padding:10px 12px;border-radius:8px;cursor:pointer
+}
+
+.historial-container table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    font-size:14px;
+}
+
+.historial-container thead th{
+    text-align:left;
+    padding:12px 10px;
+    background:#fbfdff;
+    color:#0f172a;
+    font-weight:700;
+    border-bottom:1px solid #eef3f8;
+    position:sticky;top:0;z-index:2;
+}
+
+.historial-container tbody td{
+    padding:12px 10px;
+    border-bottom:1px solid #f1f5f9;
+    vertical-align:top;
+    color:#0f172a;
+}
+
+.historial-container tbody tr:hover{background:rgba(11,94,215,0.02)}
+
+/* Miniatura de archivo */
+.file-thumb{max-width:120px;max-height:80px;object-fit:cover;border-radius:6px;display:block}
+
+/* Acción botones */
+.action-btn{margin-right:8px;padding:6px 10px;border-radius:6px;border:none;cursor:pointer;background:#e6eef8}
+.action-btn:hover{background:#d0def5}
+
+/* Responsive */
+@media (max-width:900px){
+    .historial-container{padding:16px}
+    .historial-container thead th{font-size:13px}
+    .historial-container tbody td{font-size:13px;padding:10px}
+}
+
+@media (max-width:600px){
+    .historial-container{padding:12px}
+    .file-thumb{max-width:96px;max-height:64px}
+}
