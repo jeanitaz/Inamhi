@@ -48,7 +48,7 @@ const ReportsView = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/tickets');
+                const response = await fetch('http://10.0.153.73:3001/api/tickets');
                 if (response.ok) {
                     const tickets: Ticket[] = await response.json();
                     processTicketData(tickets);

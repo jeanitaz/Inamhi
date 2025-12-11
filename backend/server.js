@@ -12,7 +12,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',      // Tu usuario de MySQL
     password: '0993643838Jc',      // Tu contraseña de MySQL
-    database: 'diseno_prueba' // El nombre de tu base de datos
+    database: 'diseno_prueba', // El nombre de tu base de datos
+    charset: 'utf8mb4' // <--- NUEVO: Asegura que las tildes se guarden y lean bien
 });
 
 db.connect(err => {
@@ -23,7 +24,7 @@ db.connect(err => {
     console.log('Conectado a MySQL exitosamente.');
 });
 
-// 2. ENDPOINT PARA CREAR TICKET
+// 2. ENDPOINT PARA CREAR TICKET (MEJORADO CON TRIM)
 app.post('/api/tickets', (req, res) => {
     const {
         fullName, area, position, email, phone,
@@ -35,6 +36,10 @@ app.post('/api/tickets', (req, res) => {
         return res.status(400).send({ message: 'Faltan campos obligatorios' });
     }
 
+    // LOG PARA VERIFICAR QUE LLEGA AL CREAR
+    console.log(`Intentando crear ticket. Area: "${area}", Tipo: "${reqType}"`);
+
+    // NUEVO SQL: Usamos TRIM() para ignorar espacios invisibles al inicio o final
     const sql = `
         INSERT INTO tickets_soporte (
             nombre_completo, cargo, correo_institucional, telefono_extension, 
@@ -42,16 +47,16 @@ app.post('/api/tickets', (req, res) => {
             descripcion_problema, observaciones_adicionales, tecnico_asignado
         ) VALUES (
             ?, ?, ?, ?, 
-            (SELECT id_area FROM catalogo_areas WHERE nombre_area = ? LIMIT 1),
-            (SELECT id_tipo FROM catalogo_tipos WHERE nombre_tipo = ? LIMIT 1),
+            (SELECT id_area FROM catalogo_areas WHERE TRIM(nombre_area) = TRIM(?) LIMIT 1),
+            (SELECT id_tipo FROM catalogo_tipos WHERE TRIM(nombre_tipo) = TRIM(?) LIMIT 1),
             ?, ?, ?, NULL
         )
     `;
 
     const values = [
         fullName, position, email, phone,
-        area,    // Busca id_area
-        reqType, // Busca id_tipo_requerimiento
+        area,    // Se comparará usando TRIM
+        reqType, // Se comparará usando TRIM
         otherDetail || null,
         description,
         observations || null
@@ -71,7 +76,7 @@ app.post('/api/tickets', (req, res) => {
     });
 });
 
-// 3. ENDPOINT PARA BUSCAR TICKET
+// 3. ENDPOINT PARA BUSCAR TICKET (CON DEBUGGING)
 app.get('/api/tickets/search', (req, res) => {
     const term = req.query.term;
     if (!term) {
@@ -81,8 +86,8 @@ app.get('/api/tickets/search', (req, res) => {
     const sql = `
         SELECT 
             t.*, 
-            a.nombre_area as area, 
-            tr.nombre_tipo as tipo
+            a.nombre_area as area_nombre, 
+            tr.nombre_tipo as tipo_nombre
         FROM tickets_soporte t
         LEFT JOIN catalogo_areas a ON t.id_area = a.id_area
         LEFT JOIN catalogo_tipos tr ON t.id_tipo_requerimiento = tr.id_tipo
@@ -103,17 +108,33 @@ app.get('/api/tickets/search', (req, res) => {
             return res.status(404).send({ message: 'No se encontró el ticket' });
         }
 
-        const ticket = results[0];
+        const ticket = results[0]; 
+        
+        // LOG DEPURACIÓN: Ver qué devuelve la base de datos realmente
+        console.log("Datos encontrados:", {
+            id: ticket.id_ticket,
+            area_id: ticket.id_area,
+            area_nombre: ticket.area_nombre,
+            tipo_id: ticket.id_tipo_requerimiento,
+            tipo_nombre: ticket.tipo_nombre
+        });
 
         const formattedTicket = {
             id: `SSTI-${new Date(ticket.fecha_creacion).getFullYear()}-${String(ticket.id_ticket).padStart(4, '0')}`,
             date: new Date(ticket.fecha_creacion).toLocaleDateString('es-EC'),
             name: ticket.nombre_completo,
-            area: ticket.area,
-            type: ticket.tipo,
+            
+            area: ticket.area_nombre 
+                  ? ticket.area_nombre 
+                  : (ticket.id_area ? `Error JOIN (ID: ${ticket.id_area})` : 'Sin Área asignada (NULL)'),
+            
+            type: ticket.tipo_nombre 
+                  ? ticket.tipo_nombre 
+                  : (ticket.id_tipo_requerimiento ? `Error JOIN (ID: ${ticket.id_tipo_requerimiento})` : 'Sin Tipo asignado (NULL)'),
+            
             status: ticket.estado,
             tech: ticket.tecnico_asignado || 'Sin Asignar',
-            description: ticket.descripcion_problema 
+            description: ticket.descripcion_problema || ticket.descripcion || 'Sin descripción detallada' 
         };
 
         res.json(formattedTicket);
@@ -123,19 +144,20 @@ app.get('/api/tickets/search', (req, res) => {
 // 4. ENDPOINT PARA OBTENER HISTORIAL
 app.get('/api/tickets', (req, res) => {
     const sql = `
-        SELECT 
-            t.id_ticket, 
-            t.nombre_completo, 
-            c_area.nombre_area AS area,
-            c_tipo.nombre_tipo AS tipo, 
-            t.estado, 
-            t.fecha_creacion,
-            t.tecnico_asignado 
-        FROM tickets_soporte t
-        LEFT JOIN catalogo_areas c_area ON t.id_area = c_area.id_area
-        LEFT JOIN catalogo_tipos c_tipo ON t.id_tipo_requerimiento = c_tipo.id_tipo
-        ORDER BY t.fecha_creacion DESC
-    `;
+    SELECT 
+        t.id_ticket, 
+        t.nombre_completo, 
+        c_area.nombre_area AS area,
+        c_tipo.nombre_tipo AS tipo, 
+        t.estado, 
+        t.fecha_creacion,
+        t.tecnico_asignado,
+        t.descripcion_problema  // <--- ¡AGREGA ESTO!
+    FROM tickets_soporte t
+    LEFT JOIN catalogo_areas c_area ON t.id_area = c_area.id_area
+    LEFT JOIN catalogo_tipos c_tipo ON t.id_tipo_requerimiento = c_tipo.id_tipo
+    ORDER BY t.fecha_creacion DESC
+`;
     
     db.query(sql, (err, results) => {
         if (err) {
@@ -147,7 +169,6 @@ app.get('/api/tickets', (req, res) => {
             const dateObj = new Date(ticket.fecha_creacion);
             const year = dateObj.getFullYear();
             
-            // Si el campo viene vacío o null, ponemos "Sin Asignar"
             const techName = (ticket.tecnico_asignado && ticket.tecnico_asignado !== '') 
                              ? ticket.tecnico_asignado 
                              : 'Sin Asignar';
@@ -156,10 +177,11 @@ app.get('/api/tickets', (req, res) => {
                 id: `SSTI-${year}-${String(ticket.id_ticket).padStart(4, '0')}`,
                 date: dateObj.toLocaleDateString('es-EC'),
                 name: ticket.nombre_completo,
-                area: ticket.area,
-                type: ticket.tipo,
+                area: ticket.area || 'Área Desconocida',
+                type: ticket.tipo || 'Tipo Desconocido',
                 status: ticket.estado,
-                tech: techName // IMPORTANTE: Esto es lo que lee el Frontend
+                tech: techName,
+                description: ticket.descripcion_problema // <--- Asegúrate que esto esté mapeado
             };
         });
 
@@ -167,7 +189,7 @@ app.get('/api/tickets', (req, res) => {
     });
 });
 
-// 5. ENDPOINT PARA ACTUALIZAR TICKET (PUT) - ¡MEJORADO!
+// 5. ENDPOINT PARA ACTUALIZAR TICKET (PUT)
 app.put('/api/tickets/:id', (req, res) => {
     const { id } = req.params; 
     const { tech, status } = req.body;
@@ -179,19 +201,13 @@ app.put('/api/tickets/:id', (req, res) => {
         return res.status(400).send({ message: 'ID de ticket inválido' });
     }
 
-    // LÓGICA INTELIGENTE:
-    // Si 'tech' viene undefined (no se envió), NO tocamos la columna tecnico_asignado.
-    // Esto evita que se borre el nombre al solo cambiar el estado.
-    
     let sql = "";
     let values = [];
 
     if (tech === undefined) {
-        // CASO 1: Solo actualizamos estado (ej: Finalizar ticket)
         sql = "UPDATE tickets_soporte SET estado = ? WHERE id_ticket = ?";
         values = [status, realId];
     } else {
-        // CASO 2: Actualizamos técnico y estado (ej: Asignar ticket o Editar en Admin)
         const techToSave = tech === 'Sin Asignar' ? null : tech;
         sql = "UPDATE tickets_soporte SET estado = ?, tecnico_asignado = ? WHERE id_ticket = ?";
         values = [status, techToSave, realId];

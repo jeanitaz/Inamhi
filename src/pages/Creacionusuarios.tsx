@@ -25,7 +25,7 @@ const CreacionUsuarios = () => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
+
         if (!formData.nombre || !formData.email || !formData.password) {
             alert("Completa los campos requeridos");
             return;
@@ -34,7 +34,7 @@ const CreacionUsuarios = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/usuarios', {
+            const response = await fetch('http://10.0.153.73:3001/api/usuarios', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -76,7 +76,7 @@ const CreacionUsuarios = () => {
 
                 {/* --- NUEVO LAYOUT: GRID DE 2 COLUMNAS --- */}
                 <div className="creation-grid">
-                    
+
                     {/* COLUMNA IZQUIERDA: FORMULARIO */}
                     <div className="form-column">
                         <div className="glass-form-card">
@@ -158,7 +158,7 @@ const CreacionUsuarios = () => {
                                         Cancelar
                                     </button>
                                     <button type="submit" className="btn-neon-primary" disabled={isLoading}>
-                                         {isLoading ? 'Guardando...' : 'Guardar Usuario'}
+                                        {isLoading ? 'Guardando...' : 'Guardar Usuario'}
                                     </button>
                                 </div>
                             </form>
@@ -167,7 +167,7 @@ const CreacionUsuarios = () => {
 
                     {/* COLUMNA DERECHA: CARDS INFORMATIVAS (NUEVO) */}
                     <div className="info-column">
-                        
+
                         {/* Card 1: Aviso Importante */}
                         <div className="info-card warning-card">
                             <div className="card-icon">⚠️</div>
@@ -205,21 +205,21 @@ const CreacionUsuarios = () => {
             {/* MODAL DE ÉXITO */}
             {showSuccessModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content glass-form-card animate-pop" style={{maxWidth: '400px', textAlign: 'center'}}>
-                        <div className="modal-header-center" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                            <div className="icon-circle" style={{background: 'rgba(0, 255, 136, 0.2)', color: '#00ff88', fontSize: '2.5rem', width:'80px', height:'80px', marginBottom:'1rem'}}>🎉</div>
-                            <h2 style={{color: '#fff', marginBottom: '0.5rem'}}>¡Usuario Creado!</h2>
+                    <div className="modal-content glass-form-card animate-pop" style={{ maxWidth: '400px', textAlign: 'center' }}>
+                        <div className="modal-header-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div className="icon-circle" style={{ background: 'rgba(0, 255, 136, 0.2)', color: '#00ff88', fontSize: '2.5rem', width: '80px', height: '80px', marginBottom: '1rem' }}>🎉</div>
+                            <h2 style={{ color: '#fff', marginBottom: '0.5rem' }}>¡Usuario Creado!</h2>
                         </div>
-                        
+
                         <div className="modal-body">
-                            <p style={{color: '#ccc', marginBottom: '2rem'}}>
+                            <p style={{ color: '#ccc', marginBottom: '2rem' }}>
                                 El usuario ha sido registrado exitosamente en la base de datos.
                             </p>
                         </div>
 
-                        <div className="modal-footer-center" style={{display: 'flex', gap: '1rem', justifyContent: 'center'}}>
-                            <button 
-                                className="btn-neon-primary" 
+                        <div className="modal-footer-center" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button
+                                className="btn-neon-primary"
                                 onClick={() => setShowSuccessModal(false)}
                             >
                                 Aceptar

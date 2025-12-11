@@ -33,12 +33,12 @@ const TicketTracking = () => {
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/search?term=${encodeURIComponent(searchTerm)}`);
+            const response = await fetch(`http://10.0.153.73:3001/api/tickets/search?term=${encodeURIComponent(searchTerm)}`);
             const data = await response.json();
 
             if (response.ok) {
                 // El backend ya formatea la fecha, usamos 'data' directamente
-                setTicket(data); 
+                setTicket(data);
             } else {
                 setError(data.message || 'No se encontró el ticket.');
             }

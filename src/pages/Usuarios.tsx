@@ -13,7 +13,7 @@ interface Ticket {
     prio?: string;
     name?: string;
     area?: string;
-    [key: string]: any; 
+    [key: string]: any;
 }
 
 // --- COMPONENTE KPI ---
@@ -30,7 +30,7 @@ const StatusCard = ({ title, icon, count, colorClass }: { title: string; icon: s
 export default function TechnicianDashboard() {
     const navigate = useNavigate();
     const [seccion, setSeccion] = useState("mis-pendientes");
-    const [tickets, setTickets] = useState<Ticket[]>([]); 
+    const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
 
     // 1. OBTENER EL NOMBRE DEL TÉCNICO LOGUEADO
@@ -44,13 +44,13 @@ export default function TechnicianDashboard() {
     const fetchTickets = async () => {
         try {
             // RECUERDA: Si usas esto en red, cambia localhost por tu IP (ej. 192.168.1.X)
-            const response = await fetch('http://localhost:3001/api/tickets');
+            const response = await fetch('http://10.0.153.73:3001/api/tickets');
             if (response.ok) {
                 const data = await response.json();
                 const formattedTickets = data.map((t: Ticket) => ({
                     ...t,
-                    prio: "Media", 
-                    desc: t.type 
+                    prio: "Media",
+                    desc: t.type
                 }));
                 setTickets(formattedTickets);
             }
@@ -71,7 +71,7 @@ export default function TechnicianDashboard() {
         // 1. BOLSA: Tickets sin técnico Y QUE NO ESTÉN RESUELTOS
         if (seccion === "bolsa") {
             const isUnassigned = !t.tech || t.tech === "Sin Asignar" || t.tech === "Por Asignar";
-            const isNotResolved = status !== "resuelto"; 
+            const isNotResolved = status !== "resuelto";
             return isUnassigned && isNotResolved;
         }
 
@@ -87,7 +87,7 @@ export default function TechnicianDashboard() {
             // Y que el estado sea 'resuelto'.
             return techName === currentName && status === "resuelto";
         }
-        
+
         return false;
     });
 
@@ -96,7 +96,7 @@ export default function TechnicianDashboard() {
     // Acción: Auto-asignarse un ticket de la bolsa
     const tomarTicket = async (id: Ticket['id']) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/${id}`, {
+            const response = await fetch(`http://10.0.153.73:3001/api/tickets/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -107,7 +107,7 @@ export default function TechnicianDashboard() {
 
             if (response.ok) {
                 await fetchTickets();
-                setSeccion("mis-pendientes"); 
+                setSeccion("mis-pendientes");
             } else {
                 alert("Error al tomar el ticket");
             }
@@ -120,11 +120,11 @@ export default function TechnicianDashboard() {
     const finalizarTicket = async (id: Ticket['id']) => {
         if (window.confirm("¿Marcar ticket como resuelto?")) {
             try {
-                const response = await fetch(`http://localhost:3001/api/tickets/${id}`, {
+                const response = await fetch(`http://10.0.153.73:3001/api/tickets/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        status: 'Resuelto' 
+                        status: 'Resuelto'
                     }),
                 });
 
@@ -144,9 +144,9 @@ export default function TechnicianDashboard() {
 
     // Calculamos contadores
     const countMyPending = tickets.filter(t => (t.tech || "").toLowerCase() === currentUser.toLowerCase() && t.status !== "Resuelto").length;
-    
-    const countPool = tickets.filter(t => 
-        (!t.tech || t.tech === "Sin Asignar" || t.tech === "Por Asignar") && 
+
+    const countPool = tickets.filter(t =>
+        (!t.tech || t.tech === "Sin Asignar" || t.tech === "Por Asignar") &&
         (t.status || "").toLowerCase() !== "resuelto"
     ).length;
 

@@ -11,7 +11,7 @@ const TechIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
 );
 const BackIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
 );
 
 // 1. CONFIGURACIÓN DE CREDENCIALES DE ADMIN
@@ -55,25 +55,25 @@ const LoginAdmin = () => {
                     setLoading(false);
                 }
             }, 800); // 0.8 segundos de espera simulada
-            
+
             return; // DETENEMOS AQUÍ: No ejecutamos la llamada a la API
         }
 
         // =========================================================
         // ESCENARIO 2: LOGIN DE TÉCNICO (API / BASE DE DATOS)
         // =========================================================
-        
+
         // Mapeo para la base de datos (tu backend espera 'Tecnico' con mayúscula)
-        const dbRole = 'Tecnico'; 
+        const dbRole = 'Tecnico';
 
         try {
-            const response = await fetch('http://localhost:3001/api/login', {
+            const response = await fetch('http://10.0.153.73:3001/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    email: email, 
-                    password: password, 
-                    rol: dbRole 
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    rol: dbRole
                 })
             });
 
@@ -81,11 +81,11 @@ const LoginAdmin = () => {
 
             if (response.ok) {
                 // Login Técnico Exitoso
-                localStorage.setItem('token', 'token-tecnico-valido'); 
+                localStorage.setItem('token', 'token-tecnico-valido');
                 localStorage.setItem('role', 'tecnico');
                 localStorage.setItem('userName', data.user.name);
                 localStorage.setItem('userEmail', data.user.email);
-                
+
                 navigate('/tecnico');
             } else {
                 // Error desde el backend
@@ -106,7 +106,7 @@ const LoginAdmin = () => {
             <div className="twinkling"></div>
 
             <div className="glass-panel animate-pop-in">
-                
+
                 <div className="panel-navigation">
                     <Link to="/" className="btn-back">
                         <BackIcon /> <span>Volver al Inicio</span>

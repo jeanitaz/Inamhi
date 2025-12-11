@@ -14,7 +14,7 @@ interface Ticket {
 // Interfaz para las Props de las tarjetas
 interface StatusCardProps {
     title: string;
-    icon: React.ReactNode; 
+    icon: React.ReactNode;
     status: string;
     count?: number;
 }
@@ -54,7 +54,7 @@ export default function Admin() {
     useEffect(() => {
         const fetchMetrics = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/tickets');
+                const response = await fetch('http://10.0.153.73:3001/api/tickets');
                 if (response.ok) {
                     const data = await response.json();
                     setTickets(data); // Guardamos todos los tickets

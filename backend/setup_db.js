@@ -17,7 +17,7 @@ async function setupDatabase() {
 
         const sqlPath = path.join(__dirname, 'database.sql');
         const sql = fs.readFileSync(sqlPath, 'utf8');
-
+        
         console.log('⚙️  Ejecutando script de base de datos...');
         await connection.query(sql);
 

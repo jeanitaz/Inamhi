@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import * as XLSX from 'xlsx'; 
+import * as XLSX from 'xlsx';
 import '../styles/Historial.css';
 import logoInamhi from '../assets/lgo.png';
 
@@ -29,11 +29,11 @@ interface TechUser {
 
 const TicketHistory = () => {
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
-  const [technicians, setTechnicians] = useState<TechUser[]>([]); 
+  const [technicians, setTechnicians] = useState<TechUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [loading, setLoading] = useState(true);
-  
+
   // Modal State
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [tempData, setTempData] = useState<{ tech: string; status: string }>({ tech: '', status: '' });
@@ -47,7 +47,7 @@ const TicketHistory = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/tickets');
+      const response = await fetch('http://10.0.153.73:3001/api/tickets');
       if (response.ok) {
         const data = await response.json();
         setAllTickets(data);
@@ -61,7 +61,7 @@ const TicketHistory = () => {
 
   const fetchTechnicians = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/tecnicos-list');
+      const response = await fetch('http://10.0.153.73:3001/api/tecnicos-list');
       if (response.ok) {
         setTechnicians(await response.json());
       }
@@ -76,19 +76,19 @@ const TicketHistory = () => {
     if (filteredTickets.length === 0) return;
 
     const dataToExport = filteredTickets.map(ticket => ({
-        "ID Ticket": ticket.id,
-        "Fecha": ticket.date,
-        "Solicitante": ticket.name,
-        "Área": ticket.area,
-        "Problema Reportado": ticket.type,
-        "Técnico Responsable": ticket.tech || "Sin Asignar", // Aquí va el nombre
-        "Estado Actual": ticket.status
+      "ID Ticket": ticket.id,
+      "Fecha": ticket.date,
+      "Solicitante": ticket.name,
+      "Área": ticket.area,
+      "Problema Reportado": ticket.type,
+      "Técnico Responsable": ticket.tech || "Sin Asignar", // Aquí va el nombre
+      "Estado Actual": ticket.status
     }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wscols = [
-        { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, 
-        { wch: 30 }, { wch: 25 }, { wch: 15 }
+      { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 15 },
+      { wch: 30 }, { wch: 25 }, { wch: 15 }
     ];
     ws['!cols'] = wscols;
 
@@ -100,9 +100,9 @@ const TicketHistory = () => {
   const handleOpenModal = (ticket: Ticket) => {
     setEditingTicket(ticket);
     // Cargamos el técnico actual en el modal para que no se pierda al editar
-    setTempData({ 
-        tech: ticket.tech === 'Sin Asignar' ? '' : ticket.tech, 
-        status: ticket.status || 'Pendiente' 
+    setTempData({
+      tech: ticket.tech === 'Sin Asignar' ? '' : ticket.tech,
+      status: ticket.status || 'Pendiente'
     });
   };
 
@@ -115,7 +115,7 @@ const TicketHistory = () => {
     if (!editingTicket) return;
     setSaving(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/tickets/${editingTicket.id}`, {
+      const response = await fetch(`http://10.0.153.73:3001/api/tickets/${editingTicket.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tempData),
@@ -125,19 +125,19 @@ const TicketHistory = () => {
         // Actualizamos la tabla localmente
         setAllTickets(prevTickets =>
           prevTickets.map(ticket =>
-            ticket.id === editingTicket.id 
-                ? { 
-                    ...ticket, 
-                    ...tempData, 
-                    // Aseguramos que si limpiaron el técnico, se muestre "Sin Asignar" en la UI
-                    tech: tempData.tech || 'Sin Asignar' 
-                  } 
-                : ticket
+            ticket.id === editingTicket.id
+              ? {
+                ...ticket,
+                ...tempData,
+                // Aseguramos que si limpiaron el técnico, se muestre "Sin Asignar" en la UI
+                tech: tempData.tech || 'Sin Asignar'
+              }
+              : ticket
           )
         );
         handleCloseModal();
       } else {
-          alert("Error al actualizar");
+        alert("Error al actualizar");
       }
     } catch (error) {
       console.error("Error saving ticket:", error);
@@ -170,45 +170,45 @@ const TicketHistory = () => {
       <div className="bg-glow"></div>
 
       <div className="historial-container animate-enter">
-         
-         <header className="historial-header">
-            <div className="header-brand">
-             <Link to="/admin" className="btn-back-circle"><BackIcon /></Link>
-             <img src={logoInamhi} alt="INAMHI" className="brand-logo" />
-             <div className="brand-text">
-               <h1>Gestión de Incidencias</h1>
-               <p>Panel de Administración</p>
-             </div>
-           </div>
-           
-           <button 
-             className="btn-primary" 
-             onClick={handleExportExcel}
-             disabled={filteredTickets.length === 0}
-             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-             <ExcelIcon /> 
-             <span>Exportar Excel</span>
-           </button>
-         </header>
-         
-         <div className="controls-panel">
-            <div className="search-group">
-             <SearchIcon />
-             <input type="text" placeholder="Buscar ticket..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-           </div>
-           <div className="filter-group">
-             <FilterIcon />
-             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-               <option value="Todos">Todos</option>
-               <option value="Pendiente">Pendiente</option>
-               <option value="En Proceso">En Proceso</option>
-               <option value="Resuelto">Resuelto</option>
-             </select>
-           </div>
-         </div>
 
-         <div className="table-wrapper">
+        <header className="historial-header">
+          <div className="header-brand">
+            <Link to="/admin" className="btn-back-circle"><BackIcon /></Link>
+            <img src={logoInamhi} alt="INAMHI" className="brand-logo" />
+            <div className="brand-text">
+              <h1>Gestión de Incidencias</h1>
+              <p>Panel de Administración</p>
+            </div>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={handleExportExcel}
+            disabled={filteredTickets.length === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <ExcelIcon />
+            <span>Exportar Excel</span>
+          </button>
+        </header>
+
+        <div className="controls-panel">
+          <div className="search-group">
+            <SearchIcon />
+            <input type="text" placeholder="Buscar ticket..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+          </div>
+          <div className="filter-group">
+            <FilterIcon />
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value="Todos">Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En Proceso">En Proceso</option>
+              <option value="Resuelto">Resuelto</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="table-wrapper">
           <table className="modern-table">
             <thead>
               <tr>
@@ -226,34 +226,34 @@ const TicketHistory = () => {
               {loading ? (
                 <tr><td colSpan={8} className="text-center">Cargando...</td></tr>
               ) : filteredTickets.map((ticket) => (
-                  <tr key={ticket.id}>
-                    <td className="col-id">{ticket.id}</td>
-                    <td className="col-date">{ticket.date}</td>
-                    <td className="col-main">{ticket.name}</td>
-                    <td>{ticket.area}</td>
-                    <td>{ticket.type}</td>
-                    
-                    {/* COLUMNA TÉCNICO: Aquí mostramos el nombre si existe */}
-                    <td className="col-tech">
-                        {ticket.tech && ticket.tech !== 'Sin Asignar' ? (
-                            <span style={{ fontWeight: '500', color: ticket.status === 'Resuelto' ? '#4ade80' : 'inherit' }}>
-                                {ticket.status === 'Resuelto' && '✓ '} 
-                                {ticket.tech}
-                            </span>
-                        ) : (
-                            <span style={{ opacity: 0.5 }}>—</span>
-                        )}
-                    </td>
+                <tr key={ticket.id}>
+                  <td className="col-id">{ticket.id}</td>
+                  <td className="col-date">{ticket.date}</td>
+                  <td className="col-main">{ticket.name}</td>
+                  <td>{ticket.area}</td>
+                  <td>{ticket.type}</td>
 
-                    <td><span className={`badge ${getStatusClass(ticket.status)}`}>{ticket.status}</span></td>
-                    <td className="text-center">
-                      <button className="btn-action" onClick={() => handleOpenModal(ticket)} title="Editar"><EditIcon /></button>
-                    </td>
-                  </tr>
+                  {/* COLUMNA TÉCNICO: Aquí mostramos el nombre si existe */}
+                  <td className="col-tech">
+                    {ticket.tech && ticket.tech !== 'Sin Asignar' ? (
+                      <span style={{ fontWeight: '500', color: ticket.status === 'Resuelto' ? '#4ade80' : 'inherit' }}>
+                        {ticket.status === 'Resuelto' && '✓ '}
+                        {ticket.tech}
+                      </span>
+                    ) : (
+                      <span style={{ opacity: 0.5 }}>—</span>
+                    )}
+                  </td>
+
+                  <td><span className={`badge ${getStatusClass(ticket.status)}`}>{ticket.status}</span></td>
+                  <td className="text-center">
+                    <button className="btn-action" onClick={() => handleOpenModal(ticket)} title="Editar"><EditIcon /></button>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
-         </div>
+        </div>
       </div>
 
       {/* --- MODAL --- */}
@@ -267,8 +267,8 @@ const TicketHistory = () => {
 
             <div className="modal-body">
               <div className="info-grid">
-                  <div className="info-item"><label>Solicitante:</label><span>{editingTicket.name}</span></div>
-                  <div className="info-item full-width"><label>Problema:</label><p>{editingTicket.type}</p></div>
+                <div className="info-item"><label>Solicitante:</label><span>{editingTicket.name}</span></div>
+                <div className="info-item full-width"><label>Problema:</label><p>{editingTicket.type}</p></div>
               </div>
 
               <hr className="modal-divider" />
@@ -282,9 +282,9 @@ const TicketHistory = () => {
                   >
                     <option value="">Sin Asignar</option>
                     {technicians.map((t, index) => (
-                        <option key={index} value={t.nombre_completo}>
-                            {t.nombre_completo}
-                        </option>
+                      <option key={index} value={t.nombre_completo}>
+                        {t.nombre_completo}
+                      </option>
                     ))}
                   </select>
                 </div>
