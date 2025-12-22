@@ -2,29 +2,53 @@ import { Route, Routes } from "react-router-dom";
 
 // Páginas existentes
 import HomePage from "../pages/HomePage";
-import Historial_tickets from "../pages/Historial_tickets"; // Verifica si quieres usar TicketHistory.tsx aquí
+import Historial_tickets from "../pages/Historial_tickets"; 
 import LoginAdmin from "../pages/LoginAdmin";
 import Reportes from "../pages/Reportes";
 import Formulario from "../pages/Formulario";
 import TicketTracking from "../pages/RegistroTickets";
 
 // Páginas Nuevas / Actualizadas
-import Admin from "../pages/Admin"; // Este es tu Super Admin Dashboard
+import Admin from "../pages/Admin"; 
 import CreacionUsuarios from "../pages/Creacionusuarios";
 import TechnicianDashboard from "../pages/Usuarios";
+import ProtectedRoute from "../components/ProtectedRoute";
+
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Rutas Públicas */}
+            {/* --- Rutas Públicas --- */}
             <Route path="/" element={<HomePage />} />
             <Route path="/formulario" element={<Formulario />} />
             <Route path="/registro" element={<TicketTracking />} />
             <Route path="/login" element={<LoginAdmin />} />
 
-            {/* Rutas Privadas / Gestión */}
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/tecnico" element={<TechnicianDashboard />} /> 
-            <Route path="/usuarios" element={<CreacionUsuarios />} />     
+            {/* --- Rutas Privadas / Gestión --- */}
+            <Route 
+                path="/admin" 
+                element={
+                    <ProtectedRoute requireAdmin={true}>
+                        <Admin />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/usuarios" 
+                element={
+                    <CreacionUsuarios />
+                } 
+            />     
+
+            <Route 
+                path="/tecnico" 
+                element={
+                    <ProtectedRoute requireAdmin={true}>
+                        <TechnicianDashboard />
+                    </ProtectedRoute>
+                } 
+            /> 
+
+            
             <Route path="/listado" element={<Historial_tickets />} />
             <Route path="/reportes" element={<Reportes />} />
         </Routes>
