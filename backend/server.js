@@ -219,7 +219,7 @@ app.post('/api/usuarios', (req, res) => {
 // 6.1. LISTAR USUARIOS (GET) - /* --- ¡ESTO FALTABA! --- */
 app.get('/api/usuarios', (req, res) => {
     // 'nombre_completo AS nombre' para que coincida con tu React
-    const sql = "SELECT id, nombre_completo AS nombre, email, rol FROM usuarios";
+    const sql = "SELECT id, nombre_completo AS nombre, email, rol, password FROM usuarios";
     
     db.query(sql, (err, results) => {
         if (err) {

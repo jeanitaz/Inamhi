@@ -3,18 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import '../styles/LoginAdmin.css';
 import logoInamhi from '../assets/lgo.png';
 
-// --- ICONOS SVG (Se mantienen igual) ---
-const AdminIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" /><path d="M12 6v6l4 2" /></svg>
-);
-const TechIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
-);
-const BackIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
-);
+// --- ICONOS SVG ---
+const AdminIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" /><path d="M12 6v6l4 2" /></svg>);
+const TechIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>);
+const BackIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>);
 
-// 1. CONFIGURACIÓN DE CREDENCIALES DE ADMIN
+// 1. CREDENCIALES ADMIN (HARDCODED)
 const ADMIN_CREDENTIALS = {
     email: "admin@inamhi.gob.ec",
     password: "admin"
@@ -23,78 +17,70 @@ const ADMIN_CREDENTIALS = {
 type Role = 'admin' | 'tecnico';
 
 const LoginAdmin = () => {
-    const [role, setRole] = useState<Role>('admin');
+    const [role, setRole] = useState<Role>('admin'); 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // =================================================================
+    // 2. IP DEL SERVIDOR (IMPORTANTE: APUNTAR AL SERVIDOR, NO LOCALHOST)
+    // =================================================================
+    const API_LOGIN_URL = 'http://10.0.153.73:3001/api/login';
+
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        // =========================================================
-        // ESCENARIO 1: LOGIN DE ADMINISTRADOR (LOCAL / HARDCODED)
-        // =========================================================
+        // --- ESCENARIO 1: LOGIN DE ADMINISTRADOR (LOCAL) ---
         if (role === 'admin') {
-            // Simulamos un pequeño delay para que la UX se sienta natural
             setTimeout(() => {
-                if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-                    // Credenciales correctas
+                if (email.trim() === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
                     localStorage.setItem('token', 'TOKEN-MASTER-ADMIN');
                     localStorage.setItem('role', 'admin');
                     localStorage.setItem('userName', 'Administrador Principal');
-                    localStorage.setItem('userEmail', email);
-
-                    navigate('/admin');
+                    navigate('/admin'); // Redirige al panel de Admin
                 } else {
-                    // Credenciales incorrectas
                     setError('Credenciales de Administrador incorrectas');
                     setLoading(false);
                 }
-            }, 800); // 0.8 segundos de espera simulada
-
-            return; // DETENEMOS AQUÍ: No ejecutamos la llamada a la API
+            }, 800);
+            return;
         }
 
-        // =========================================================
-        // ESCENARIO 2: LOGIN DE TÉCNICO (API / BASE DE DATOS)
-        // =========================================================
-
-        // Mapeo para la base de datos (tu backend espera 'Tecnico' con mayúscula)
-        const dbRole = 'Tecnico';
-
+        // --- ESCENARIO 2: LOGIN DE TÉCNICO O PASANTE (DESDE SERVIDOR) ---
         try {
-            const response = await fetch('http://10.0.153.73:3001/api/login', {
+            // Enviamos 'Tecnico' como rol solicitado. El backend está configurado
+            // para permitir entrar si el usuario es 'Tecnico' O 'Pasante'.
+            const response = await fetch(API_LOGIN_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: email,
                     password: password,
-                    rol: dbRole
+                    rol: 'Tecnico' 
                 })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Login Técnico Exitoso
+                // Login Exitoso
                 localStorage.setItem('token', 'token-tecnico-valido');
-                localStorage.setItem('role', 'tecnico');
+                localStorage.setItem('role', data.user.role); // Aquí guarda si es 'Tecnico' o 'Pasante' real
                 localStorage.setItem('userName', data.user.name);
                 localStorage.setItem('userEmail', data.user.email);
 
-                navigate('/tecnico');
+                navigate('/tecnico'); // Redirige al dashboard de técnicos
             } else {
-                // Error desde el backend
                 setError(data.message || 'Credenciales inválidas');
             }
 
         } catch (err) {
             console.error(err);
-            setError('Error de conexión con el servidor.');
+            setError('Error de conexión con el servidor 10.0.153.73');
         } finally {
             setLoading(false);
         }
@@ -106,7 +92,6 @@ const LoginAdmin = () => {
             <div className="twinkling"></div>
 
             <div className="glass-panel animate-pop-in">
-
                 <div className="panel-navigation">
                     <Link to="/" className="btn-back">
                         <BackIcon /> <span>Volver al Inicio</span>
@@ -123,13 +108,16 @@ const LoginAdmin = () => {
 
                 {/* Selector de Roles */}
                 <div className="role-cards">
+                    {/* TARJETA PARA TÉCNICOS Y PASANTES */}
                     <div
                         className={`role-card ${role === 'tecnico' ? 'active' : ''}`}
                         onClick={() => { setRole('tecnico'); setError(''); }}
                     >
                         <div className="icon-box"><TechIcon /></div>
-                        <span>Técnico</span>
+                        <span>Técnico / Pasante</span>
                     </div>
+
+                    {/* TARJETA PARA ADMIN */}
                     <div
                         className={`role-card ${role === 'admin' ? 'active' : ''}`}
                         onClick={() => { setRole('admin'); setError(''); }}
