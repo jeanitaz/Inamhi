@@ -11,15 +11,16 @@ const FilterIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="
 const EditIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>);
 const CloseIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const ExcelIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+/* --- NUEVO ICONO DE BASURA --- */
+const TrashIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
 
-// Interfaz adaptada a la respuesta del Backend
 interface Ticket {
   id: string;
   date: string;
   name: string;
   area: string;
   type: string;
-  tech: string; // Aquí llegará el nombre del técnico (ej: "Juan Pérez" o "Sin Asignar")
+  tech: string;
   status: string;
 }
 
@@ -28,6 +29,9 @@ interface TechUser {
 }
 
 const TicketHistory = () => {
+  // NOTA: Si estás probando en local, cambia la IP a localhost si es necesario
+  const API_BASE_URL = 'http://10.0.153.73:3001'; 
+
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [technicians, setTechnicians] = useState<TechUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,7 +43,6 @@ const TicketHistory = () => {
   const [tempData, setTempData] = useState<{ tech: string; status: string }>({ tech: '', status: '' });
   const [saving, setSaving] = useState(false);
 
-  // --- CARGAR DATOS ---
   useEffect(() => {
     fetchTickets();
     fetchTechnicians();
@@ -47,7 +50,7 @@ const TicketHistory = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('http://10.0.153.73:3001/api/tickets');
+      const response = await fetch(`${API_BASE_URL}/api/tickets`);
       if (response.ok) {
         const data = await response.json();
         setAllTickets(data);
@@ -61,7 +64,7 @@ const TicketHistory = () => {
 
   const fetchTechnicians = async () => {
     try {
-      const response = await fetch('http://10.0.153.73:3001/api/tecnicos-list');
+      const response = await fetch(`${API_BASE_URL}/api/tecnicos-list`);
       if (response.ok) {
         setTechnicians(await response.json());
       }
@@ -70,8 +73,34 @@ const TicketHistory = () => {
     }
   };
 
-  // --- LÓGICA EXPORTAR EXCEL ---
-  // Ahora el Excel también incluirá el nombre exacto del técnico
+  // --- NUEVA FUNCIÓN PARA ELIMINAR ---
+  const handleDeleteTicket = async (id: string) => {
+    // 1. Confirmación de seguridad
+    const confirmacion = window.confirm(
+      `¿Estás seguro de que deseas eliminar el ticket ${id}?\n\nEsta acción no se puede deshacer.`
+    );
+
+    if (!confirmacion) return;
+
+    try {
+      // 2. Petición DELETE a la API
+      const response = await fetch(`${API_BASE_URL}/api/tickets/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // 3. Actualizar estado local (filtrar el eliminado)
+        setAllTickets(prev => prev.filter(t => t.id !== id));
+        alert("Ticket eliminado correctamente.");
+      } else {
+        alert("No se pudo eliminar el ticket. Verifica el servidor.");
+      }
+    } catch (error) {
+      console.error("Error eliminando ticket:", error);
+      alert("Error de conexión al intentar eliminar.");
+    }
+  };
+
   const handleExportExcel = () => {
     if (filteredTickets.length === 0) return;
 
@@ -81,7 +110,7 @@ const TicketHistory = () => {
       "Solicitante": ticket.name,
       "Área": ticket.area,
       "Problema Reportado": ticket.type,
-      "Técnico Responsable": ticket.tech || "Sin Asignar", // Aquí va el nombre
+      "Técnico Responsable": ticket.tech || "Sin Asignar",
       "Estado Actual": ticket.status
     }));
 
@@ -99,7 +128,6 @@ const TicketHistory = () => {
 
   const handleOpenModal = (ticket: Ticket) => {
     setEditingTicket(ticket);
-    // Cargamos el técnico actual en el modal para que no se pierda al editar
     setTempData({
       tech: ticket.tech === 'Sin Asignar' ? '' : ticket.tech,
       status: ticket.status || 'Pendiente'
@@ -115,21 +143,19 @@ const TicketHistory = () => {
     if (!editingTicket) return;
     setSaving(true);
     try {
-      const response = await fetch(`http://10.0.153.73:3001/api/tickets/${editingTicket.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/tickets/${editingTicket.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tempData),
       });
 
       if (response.ok) {
-        // Actualizamos la tabla localmente
         setAllTickets(prevTickets =>
           prevTickets.map(ticket =>
             ticket.id === editingTicket.id
               ? {
                 ...ticket,
                 ...tempData,
-                // Aseguramos que si limpiaron el técnico, se muestre "Sin Asignar" en la UI
                 tech: tempData.tech || 'Sin Asignar'
               }
               : ticket
@@ -217,7 +243,7 @@ const TicketHistory = () => {
                 <th>Solicitante</th>
                 <th>Área</th>
                 <th>Problema</th>
-                <th>Técnico Responsable</th> {/* Cambiado el título */}
+                <th>Técnico Responsable</th>
                 <th>Estado</th>
                 <th className="text-center">Acciones</th>
               </tr>
@@ -233,7 +259,6 @@ const TicketHistory = () => {
                   <td>{ticket.area}</td>
                   <td>{ticket.type}</td>
 
-                  {/* COLUMNA TÉCNICO: Aquí mostramos el nombre si existe */}
                   <td className="col-tech">
                     {ticket.tech && ticket.tech !== 'Sin Asignar' ? (
                       <span style={{ fontWeight: '500', color: ticket.status === 'Resuelto' ? '#4ade80' : 'inherit' }}>
@@ -246,9 +271,24 @@ const TicketHistory = () => {
                   </td>
 
                   <td><span className={`badge ${getStatusClass(ticket.status)}`}>{ticket.status}</span></td>
+                  
+                  {/* --- ACCIONES CON BOTON ELIMINAR AGREGADO --- */}
                   <td className="text-center">
-                    <button className="btn-action" onClick={() => handleOpenModal(ticket)} title="Editar"><EditIcon /></button>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <button className="btn-action" onClick={() => handleOpenModal(ticket)} title="Editar">
+                        <EditIcon />
+                      </button>
+                      <button 
+                        className="btn-action delete" // Clase nueva para estilo rojo
+                        onClick={() => handleDeleteTicket(ticket.id)} 
+                        title="Eliminar"
+                        style={{ color: '#ff4757' }} // Color rojo directo
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -256,7 +296,7 @@ const TicketHistory = () => {
         </div>
       </div>
 
-      {/* --- MODAL --- */}
+      {/* --- MODAL (Sin cambios) --- */}
       {editingTicket && (
         <div className="modal-overlay">
           <div className="modal-content animate-pop">

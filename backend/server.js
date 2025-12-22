@@ -13,7 +13,7 @@ const db = mysql.createConnection({
     user: 'root',      // Tu usuario de MySQL
     password: '0993643838Jc',      // Tu contraseña de MySQL
     database: 'diseno_prueba', // El nombre de tu base de datos
-    charset: 'utf8mb4' // <--- NUEVO: Asegura que las tildes se guarden y lean bien
+    charset: 'utf8mb4' // Asegura que las tildes se guarden y lean bien
 });
 
 db.connect(err => {
@@ -24,22 +24,21 @@ db.connect(err => {
     console.log('Conectado a MySQL exitosamente.');
 });
 
-// 2. ENDPOINT PARA CREAR TICKET (MEJORADO CON TRIM)
+// =========================================================================
+//  GESTIÓN DE TICKETS
+// =========================================================================
+
+// 2. CREAR TICKET
 app.post('/api/tickets', (req, res) => {
     const {
         fullName, area, position, email, phone,
         reqType, otherDetail, description, observations
     } = req.body;
 
-    // Validación básica
     if (!fullName || !area || !reqType || !description) {
         return res.status(400).send({ message: 'Faltan campos obligatorios' });
     }
 
-    // LOG PARA VERIFICAR QUE LLEGA AL CREAR
-    console.log(`Intentando crear ticket. Area: "${area}", Tipo: "${reqType}"`);
-
-    // NUEVO SQL: Usamos TRIM() para ignorar espacios invisibles al inicio o final
     const sql = `
         INSERT INTO tickets_soporte (
             nombre_completo, cargo, correo_institucional, telefono_extension, 
@@ -55,11 +54,7 @@ app.post('/api/tickets', (req, res) => {
 
     const values = [
         fullName, position, email, phone,
-        area,    // Se comparará usando TRIM
-        reqType, // Se comparará usando TRIM
-        otherDetail || null,
-        description,
-        observations || null
+        area, reqType, otherDetail || null, description, observations || null
     ];
 
     db.query(sql, values, (err, result) => {
@@ -67,33 +62,23 @@ app.post('/api/tickets', (req, res) => {
             console.error(err);
             return res.status(500).send({ message: 'Error al guardar en base de datos', error: err });
         }
-
         const newTicketId = `SSTI-${new Date().getFullYear()}-${String(result.insertId).padStart(4, '0')}`;
-        res.status(200).send({
-            message: 'Ticket creado correctamente',
-            ticketId: newTicketId
-        });
+        res.status(200).send({ message: 'Ticket creado correctamente', ticketId: newTicketId });
     });
 });
 
-// 3. ENDPOINT PARA BUSCAR TICKET (CON DEBUGGING)
+// 3. BUSCAR TICKET
 app.get('/api/tickets/search', (req, res) => {
     const term = req.query.term;
-    if (!term) {
-        return res.status(400).send({ message: 'Término de búsqueda requerido' });
-    }
+    if (!term) return res.status(400).send({ message: 'Término de búsqueda requerido' });
 
     const sql = `
-        SELECT 
-            t.*, 
-            a.nombre_area as area_nombre, 
-            tr.nombre_tipo as tipo_nombre
+        SELECT t.*, a.nombre_area as area_nombre, tr.nombre_tipo as tipo_nombre
         FROM tickets_soporte t
         LEFT JOIN catalogo_areas a ON t.id_area = a.id_area
         LEFT JOIN catalogo_tipos tr ON t.id_tipo_requerimiento = tr.id_tipo
-        WHERE 
-            t.nombre_completo LIKE ? 
-            OR CONCAT('SSTI-', YEAR(t.fecha_creacion), '-', LPAD(t.id_ticket, 4, '0')) = ?
+        WHERE t.nombre_completo LIKE ? 
+        OR CONCAT('SSTI-', YEAR(t.fecha_creacion), '-', LPAD(t.id_ticket, 4, '0')) = ?
     `;
 
     const searchTermLike = `%${term}%`;
@@ -103,75 +88,42 @@ app.get('/api/tickets/search', (req, res) => {
             console.error("Error en búsqueda:", err);
             return res.status(500).send({ message: 'Error en el servidor' });
         }
-
-        if (results.length === 0) {
-            return res.status(404).send({ message: 'No se encontró el ticket' });
-        }
+        if (results.length === 0) return res.status(404).send({ message: 'No se encontró el ticket' });
 
         const ticket = results[0]; 
-        
-        // LOG DEPURACIÓN: Ver qué devuelve la base de datos realmente
-        console.log("Datos encontrados:", {
-            id: ticket.id_ticket,
-            area_id: ticket.id_area,
-            area_nombre: ticket.area_nombre,
-            tipo_id: ticket.id_tipo_requerimiento,
-            tipo_nombre: ticket.tipo_nombre
-        });
-
         const formattedTicket = {
             id: `SSTI-${new Date(ticket.fecha_creacion).getFullYear()}-${String(ticket.id_ticket).padStart(4, '0')}`,
             date: new Date(ticket.fecha_creacion).toLocaleDateString('es-EC'),
             name: ticket.nombre_completo,
-            
-            area: ticket.area_nombre 
-                  ? ticket.area_nombre 
-                  : (ticket.id_area ? `Error JOIN (ID: ${ticket.id_area})` : 'Sin Área asignada (NULL)'),
-            
-            type: ticket.tipo_nombre 
-                  ? ticket.tipo_nombre 
-                  : (ticket.id_tipo_requerimiento ? `Error JOIN (ID: ${ticket.id_tipo_requerimiento})` : 'Sin Tipo asignado (NULL)'),
-            
+            area: ticket.area_nombre || (ticket.id_area ? `Error JOIN` : 'Sin Área'),
+            type: ticket.tipo_nombre || (ticket.id_tipo_requerimiento ? `Error JOIN` : 'Sin Tipo'),
             status: ticket.estado,
             tech: ticket.tecnico_asignado || 'Sin Asignar',
-            description: ticket.descripcion_problema || ticket.descripcion || 'Sin descripción detallada' 
+            description: ticket.descripcion_problema || 'Sin descripción' 
         };
-
         res.json(formattedTicket);
     });
 });
 
-// 4. ENDPOINT PARA OBTENER HISTORIAL
+// 4. OBTENER HISTORIAL (GET)
 app.get('/api/tickets', (req, res) => {
     const sql = `
-    SELECT 
-        t.id_ticket, 
-        t.nombre_completo, 
-        c_area.nombre_area AS area,
-        c_tipo.nombre_tipo AS tipo, 
-        t.estado, 
-        t.fecha_creacion,
-        t.tecnico_asignado,
-        t.descripcion_problema  // <--- ¡AGREGA ESTO!
+    SELECT t.id_ticket, t.nombre_completo, c_area.nombre_area AS area,
+        c_tipo.nombre_tipo AS tipo, t.estado, t.fecha_creacion,
+        t.tecnico_asignado, t.descripcion_problema
     FROM tickets_soporte t
     LEFT JOIN catalogo_areas c_area ON t.id_area = c_area.id_area
     LEFT JOIN catalogo_tipos c_tipo ON t.id_tipo_requerimiento = c_tipo.id_tipo
     ORDER BY t.fecha_creacion DESC
-`;
+    `;
     
     db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send({ message: 'Error al obtener historial' });
-        }
+        if (err) return res.status(500).send({ message: 'Error al obtener historial' });
 
         const history = results.map(ticket => {
             const dateObj = new Date(ticket.fecha_creacion);
             const year = dateObj.getFullYear();
-            
-            const techName = (ticket.tecnico_asignado && ticket.tecnico_asignado !== '') 
-                             ? ticket.tecnico_asignado 
-                             : 'Sin Asignar';
+            const techName = (ticket.tecnico_asignado && ticket.tecnico_asignado !== '') ? ticket.tecnico_asignado : 'Sin Asignar';
 
             return {
                 id: `SSTI-${year}-${String(ticket.id_ticket).padStart(4, '0')}`,
@@ -181,25 +133,21 @@ app.get('/api/tickets', (req, res) => {
                 type: ticket.tipo || 'Tipo Desconocido',
                 status: ticket.estado,
                 tech: techName,
-                description: ticket.descripcion_problema // <--- Asegúrate que esto esté mapeado
+                description: ticket.descripcion_problema
             };
         });
-
         res.json(history);
     });
 });
 
-// 5. ENDPOINT PARA ACTUALIZAR TICKET (PUT)
+// 5. ACTUALIZAR TICKET (PUT)
 app.put('/api/tickets/:id', (req, res) => {
     const { id } = req.params; 
     const { tech, status } = req.body;
-
     const idParts = id.split('-');
     const realId = parseInt(idParts.pop()); 
 
-    if (isNaN(realId)) {
-        return res.status(400).send({ message: 'ID de ticket inválido' });
-    }
+    if (isNaN(realId)) return res.status(400).send({ message: 'ID de ticket inválido' });
 
     let sql = "";
     let values = [];
@@ -214,20 +162,35 @@ app.put('/api/tickets/:id', (req, res) => {
     }
 
     db.query(sql, values, (err, result) => {
-        if (err) {
-            console.error("Error al actualizar:", err);
-            return res.status(500).send({ message: 'Error interno del servidor' });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).send({ message: 'Ticket no encontrado' });
-        }
-
+        if (err) return res.status(500).send({ message: 'Error interno' });
+        if (result.affectedRows === 0) return res.status(404).send({ message: 'Ticket no encontrado' });
         res.status(200).send({ message: 'Ticket actualizado correctamente' });
     });
 });
 
-// 6. ENDPOINT PARA CREAR USUARIOS
+// 5.1 ELIMINAR TICKET (DELETE) - /* --- ¡NUEVO! --- */
+app.delete('/api/tickets/:id', (req, res) => {
+    const { id } = req.params;
+    const idParts = id.split('-');
+    const realId = parseInt(idParts.pop());
+
+    if (isNaN(realId)) return res.status(400).send({ message: 'ID inválido' });
+
+    const sql = "DELETE FROM tickets_soporte WHERE id_ticket = ?";
+    db.query(sql, [realId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send({ message: 'Error al eliminar ticket' });
+        }
+        res.status(200).send({ message: 'Ticket eliminado' });
+    });
+});
+
+// =========================================================================
+//  GESTIÓN DE USUARIOS
+// =========================================================================
+
+// 6. CREAR USUARIO (POST)
 app.post('/api/usuarios', (req, res) => {
     const { nombre, email, password, rol } = req.body;
 
@@ -235,7 +198,8 @@ app.post('/api/usuarios', (req, res) => {
         return res.status(400).send({ message: 'Faltan campos obligatorios' });
     }
 
-    const rolesPermitidos = ['Pasante', 'Tecnico'];
+    // /* --- MEJORA: Ahora permite crear Administradores --- */
+    const rolesPermitidos = ['Pasante', 'Tecnico', 'Admin', 'Administrador'];
     if (!rolesPermitidos.includes(rol)) {
         return res.status(400).send({ message: 'Rol no válido.' });
     }
@@ -245,36 +209,80 @@ app.post('/api/usuarios', (req, res) => {
 
     db.query(sql, values, (err, result) => {
         if (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).send({ message: 'El correo electrónico ya está registrado.' });
-            }
+            if (err.code === 'ER_DUP_ENTRY') return res.status(409).send({ message: 'El correo ya existe.' });
             return res.status(500).send({ message: 'Error al registrar usuario', error: err });
         }
         res.status(200).send({ message: 'Usuario creado exitosamente', userId: result.insertId });
     });
 });
 
-// 7. ENDPOINT DE LOGIN
+// 6.1. LISTAR USUARIOS (GET) - /* --- ¡ESTO FALTABA! --- */
+app.get('/api/usuarios', (req, res) => {
+    // 'nombre_completo AS nombre' para que coincida con tu React
+    const sql = "SELECT id, nombre_completo AS nombre, email, rol FROM usuarios";
+    
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send({ message: 'Error al obtener usuarios' });
+        }
+        res.json(results);
+    });
+});
+
+// 6.2. EDITAR USUARIO (PUT) - /* --- ¡ESTO FALTABA! --- */
+app.put('/api/usuarios/:id', (req, res) => {
+    const { id } = req.params;
+    const { nombre, email, rol, password } = req.body;
+
+    // Si envían password, actualizamos todo
+    if (password && password.trim() !== "") {
+        const sql = "UPDATE usuarios SET nombre_completo = ?, email = ?, rol = ?, password = ? WHERE id = ?";
+        db.query(sql, [nombre, email, rol, password, id], (err, result) => {
+            if (err) return res.status(500).send({ message: 'Error al actualizar' });
+            res.send({ message: 'Usuario actualizado con contraseña' });
+        });
+    } else {
+        // Si NO envían password, mantenemos la anterior
+        const sql = "UPDATE usuarios SET nombre_completo = ?, email = ?, rol = ? WHERE id = ?";
+        db.query(sql, [nombre, email, rol, id], (err, result) => {
+            if (err) return res.status(500).send({ message: 'Error al actualizar' });
+            res.send({ message: 'Usuario actualizado sin cambiar contraseña' });
+        });
+    }
+});
+
+// 6.3. ELIMINAR USUARIO (DELETE) - /* --- ¡ESTO FALTABA! --- */
+app.delete('/api/usuarios/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM usuarios WHERE id = ?";
+    
+    db.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).send({ message: 'Error al eliminar usuario' });
+        res.send({ message: 'Usuario eliminado correctamente' });
+    });
+});
+
+// =========================================================================
+
+// 7. LOGIN
 app.post('/api/login', (req, res) => {
     const { email, password, rol } = req.body;
 
-    if (!email || !password || !rol) {
-        return res.status(400).send({ message: 'Credenciales incompletas' });
-    }
+    if (!email || !password || !rol) return res.status(400).send({ message: 'Credenciales incompletas' });
 
     const sql = "SELECT * FROM usuarios WHERE email = ? AND password = ?";
     
     db.query(sql, [email, password], (err, results) => {
-        if (err) {
-            return res.status(500).send({ message: 'Error de servidor' });
-        }
+        if (err) return res.status(500).send({ message: 'Error de servidor' });
 
         if (results.length > 0) {
             const user = results[0];
             let accesoPermitido = false;
 
-            if (rol === 'Administrador') {
-                if (user.rol === 'Administrador') accesoPermitido = true;
+            // Lógica de permisos
+            if (rol === 'Administrador' || rol === 'Admin') {
+                if (user.rol === 'Administrador' || user.rol === 'Admin') accesoPermitido = true;
             } 
             else if (rol === 'Tecnico') {
                 if (user.rol === 'Tecnico' || user.rol === 'Pasante') accesoPermitido = true;
@@ -299,14 +307,11 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// 8. ENDPOINT PARA LISTAR TÉCNICOS
+// 8. LISTAR TÉCNICOS (Para Dropdown)
 app.get('/api/tecnicos-list', (req, res) => {
     const sql = "SELECT nombre_completo FROM usuarios WHERE rol IN ('Tecnico', 'Pasante')";
-    
     db.query(sql, (err, results) => {
-        if (err) {
-            return res.status(500).send({ message: 'Error al obtener técnicos' });
-        }
+        if (err) return res.status(500).send({ message: 'Error al obtener técnicos' });
         res.json(results);
     });
 });
