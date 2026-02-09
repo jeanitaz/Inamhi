@@ -62,7 +62,8 @@ app.post('/api/tickets', (req, res) => {
             console.error(err);
             return res.status(500).send({ message: 'Error al guardar en base de datos', error: err });
         }
-        const newTicketId = `SSTI-${new Date().getFullYear()}-${String(result.insertId).padStart(4, '0')}`;
+        // CAMBIO AQUÍ: Formato largo con -ST al final
+        const newTicketId = `INAMHI-DAF-UTICS-${new Date().getFullYear()}-${String(result.insertId).padStart(4, '0')}-ST`;
         res.status(200).send({ message: 'Ticket creado correctamente', ticketId: newTicketId });
     });
 });
@@ -72,13 +73,14 @@ app.get('/api/tickets/search', (req, res) => {
     const term = req.query.term;
     if (!term) return res.status(400).send({ message: 'Término de búsqueda requerido' });
 
+    // CAMBIO AQUÍ: SQL CONCAT actualizado para buscar el formato largo con -ST
     const sql = `
         SELECT t.*, a.nombre_area as area_nombre, tr.nombre_tipo as tipo_nombre
         FROM tickets_soporte t
         LEFT JOIN catalogo_areas a ON t.id_area = a.id_area
         LEFT JOIN catalogo_tipos tr ON t.id_tipo_requerimiento = tr.id_tipo
         WHERE t.nombre_completo LIKE ? 
-        OR CONCAT('SSTI-', YEAR(t.fecha_creacion), '-', LPAD(t.id_ticket, 4, '0')) = ?
+        OR CONCAT('INAMHI-DAF-UTICS-', YEAR(t.fecha_creacion), '-', LPAD(t.id_ticket, 4, '0'), '-ST') = ?
     `;
 
     const searchTermLike = `%${term}%`;
@@ -92,7 +94,8 @@ app.get('/api/tickets/search', (req, res) => {
 
         const ticket = results[0]; 
         const formattedTicket = {
-            id: `SSTI-${new Date(ticket.fecha_creacion).getFullYear()}-${String(ticket.id_ticket).padStart(4, '0')}`,
+            // CAMBIO AQUÍ: Formato de respuesta JSON
+            id: `INAMHI-DAF-UTICS-${new Date(ticket.fecha_creacion).getFullYear()}-${String(ticket.id_ticket).padStart(4, '0')}-ST`,
             date: new Date(ticket.fecha_creacion).toLocaleDateString('es-EC'),
             name: ticket.nombre_completo,
             area: ticket.area_nombre || (ticket.id_area ? `Error JOIN` : 'Sin Área'),
@@ -126,7 +129,8 @@ app.get('/api/tickets', (req, res) => {
             const techName = (ticket.tecnico_asignado && ticket.tecnico_asignado !== '') ? ticket.tecnico_asignado : 'Sin Asignar';
 
             return {
-                id: `SSTI-${year}-${String(ticket.id_ticket).padStart(4, '0')}`,
+                // CAMBIO AQUÍ: Formato de respuesta en la lista
+                id: `INAMHI-DAF-UTICS-${year}-${String(ticket.id_ticket).padStart(4, '0')}-ST`,
                 date: dateObj.toLocaleDateString('es-EC'),
                 name: ticket.nombre_completo,
                 area: ticket.area || 'Área Desconocida',
@@ -144,8 +148,11 @@ app.get('/api/tickets', (req, res) => {
 app.put('/api/tickets/:id', (req, res) => {
     const { id } = req.params; 
     const { tech, status } = req.body;
+    
+    // CAMBIO IMPORTANTE: Lógica para extraer el ID numérico
+    // Como el ID termina en "-ST", el número es el penúltimo elemento, no el último.
     const idParts = id.split('-');
-    const realId = parseInt(idParts.pop()); 
+    const realId = parseInt(idParts[idParts.length - 2]); 
 
     if (isNaN(realId)) return res.status(400).send({ message: 'ID de ticket inválido' });
 
@@ -168,11 +175,14 @@ app.put('/api/tickets/:id', (req, res) => {
     });
 });
 
-// 5.1 ELIMINAR TICKET (DELETE) - /* --- ¡NUEVO! --- */
+// 5.1 ELIMINAR TICKET (DELETE)
 app.delete('/api/tickets/:id', (req, res) => {
     const { id } = req.params;
+    
+    // CAMBIO IMPORTANTE: Lógica para extraer el ID numérico
+    // Como el ID termina en "-ST", el número es el penúltimo elemento.
     const idParts = id.split('-');
-    const realId = parseInt(idParts.pop());
+    const realId = parseInt(idParts[idParts.length - 2]);
 
     if (isNaN(realId)) return res.status(400).send({ message: 'ID inválido' });
 
@@ -198,7 +208,6 @@ app.post('/api/usuarios', (req, res) => {
         return res.status(400).send({ message: 'Faltan campos obligatorios' });
     }
 
-    // /* --- MEJORA: Ahora permite crear Administradores --- */
     const rolesPermitidos = ['Pasante', 'Tecnico', 'Admin', 'Administrador'];
     if (!rolesPermitidos.includes(rol)) {
         return res.status(400).send({ message: 'Rol no válido.' });
@@ -216,9 +225,8 @@ app.post('/api/usuarios', (req, res) => {
     });
 });
 
-// 6.1. LISTAR USUARIOS (GET) - /* --- ¡ESTO FALTABA! --- */
+// 6.1. LISTAR USUARIOS (GET)
 app.get('/api/usuarios', (req, res) => {
-    // 'nombre_completo AS nombre' para que coincida con tu React
     const sql = "SELECT id, nombre_completo AS nombre, email, rol, password FROM usuarios";
     
     db.query(sql, (err, results) => {
@@ -230,7 +238,7 @@ app.get('/api/usuarios', (req, res) => {
     });
 });
 
-// 6.2. EDITAR USUARIO (PUT) - /* --- ¡ESTO FALTABA! --- */
+// 6.2. EDITAR USUARIO (PUT)
 app.put('/api/usuarios/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, email, rol, password } = req.body;
@@ -252,7 +260,7 @@ app.put('/api/usuarios/:id', (req, res) => {
     }
 });
 
-// 6.3. ELIMINAR USUARIO (DELETE) - /* --- ¡ESTO FALTABA! --- */
+// 6.3. ELIMINAR USUARIO (DELETE)
 app.delete('/api/usuarios/:id', (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM usuarios WHERE id = ?";

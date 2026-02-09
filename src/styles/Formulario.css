@@ -1,3 +1,15 @@
+/* --- VARIABLES LOCALES (Cyber Glass Light) --- */
+:root {
+    --form-bg-gradient: linear-gradient(-45deg, #f8fafc, #e0f2fe, #f1f5f9, #eff6ff);
+    --glass-panel-bg: rgba(255, 255, 255, 0.75);
+    --modal-bg: rgba(255, 255, 255, 0.95);
+    --border-color: rgba(15, 23, 42, 0.1);
+    --text-main: #1e293b; /* Slate 800 */
+    --text-muted: #64748b; /* Slate 500 */
+    --accent-blue: #3b82f6;
+    --input-bg: rgba(15, 23, 42, 0.05);
+}
+
 /* Layout Principal */
 .form-container {
     min-height: 100vh;
@@ -5,21 +17,33 @@
     justify-content: center;
     align-items: flex-start;
     padding: 2rem 1rem;
-    background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+    background: var(--form-bg-gradient);
+    background-size: 400% 400%;
+    animation: lightGradientFlow 20s ease infinite;
     position: relative;
     overflow-y: auto;
 }
 
+@keyframes lightGradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.service-request-card,
 .form-wrapper {
     width: 100%;
     max-width: 800px;
-    background: rgba(30, 41, 59, 0.6);
+    background: rgba(255, 255, 255, 0.75); /* Explicit Light Glass */
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 20px;
     padding: 2.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    color: #1e293b; /* Ensure text is dark */
 }
 
 /* Header */
@@ -35,12 +59,12 @@
 }
 
 .form-header h2 {
-    color: #fff;
+    color: var(--text-main);
     margin: 0.5rem 0;
 }
 
 .form-header p {
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 .back-link {
@@ -50,16 +74,16 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    color: #94a3b8;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.3s;
 }
-.back-link:hover { color: #fff; }
+.back-link:hover { color: var(--text-main); }
 
 /* Secciones del Formulario */
 .form-section h3 {
-    color: #60a5fa;
+    color: var(--accent-blue);
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
     display: flex;
@@ -68,8 +92,8 @@
 }
 
 .step-number {
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
     width: 28px;
     height: 28px;
     display: flex;
@@ -78,6 +102,7 @@
     border-radius: 50%;
     font-size: 0.9rem;
     font-weight: bold;
+    color: var(--accent-blue);
 }
 
 /* Grids e Inputs */
@@ -94,20 +119,20 @@
 }
 
 .input-group label {
-    color: #cbd5e1;
+    color: var(--text-muted);
     font-size: 0.9rem;
     margin-bottom: 0.4rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .input-group input,
 .input-group select,
 .input-group textarea {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.8rem 1rem;
-    color: #fff;
+    color: var(--text-main);
     font-size: 1rem;
     transition: all 0.3s ease;
     width: 100%;
@@ -117,30 +142,30 @@
 .input-group select:focus,
 .input-group textarea:focus {
     outline: none;
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-    background: rgba(15, 23, 42, 0.9);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: rgba(59, 130, 246, 0.05);
 }
 
 .input-group select option {
-    background-color: #0f172a;
-    color: #fff;
+    background-color: white;
+    color: var(--text-main);
 }
 
 /* File Upload Personalizado */
 .file-drop-zone {
-    border: 2px dashed rgba(148, 163, 184, 0.3);
+    border: 2px dashed rgba(148, 163, 184, 0.5);
     border-radius: 8px;
     padding: 1.5rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
-    background: rgba(15, 23, 42, 0.3);
+    background: rgba(15, 23, 42, 0.02);
 }
 
 .file-drop-zone:hover {
-    border-color: #60a5fa;
-    background: rgba(96, 165, 250, 0.1);
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.05);
 }
 
 .file-content {
@@ -148,13 +173,13 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 /* Divisor */
 .divider {
     height: 1px;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
     margin: 2rem 0;
 }
 
@@ -183,12 +208,12 @@
 
 /* Tarjeta de Éxito */
 .success-card {
-    background: rgba(30, 41, 59, 0.9);
+    background: var(--glass-panel-bg);
     padding: 3rem;
     border-radius: 20px;
     text-align: center;
     max-width: 500px;
-    border: 1px solid rgba(74, 222, 128, 0.3);
+    border: 1px solid rgba(74, 222, 128, 0.5); /* Green border */
     box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
 }
 
@@ -204,7 +229,7 @@
 }
 
 .ticket-badge {
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.05);
     border: 1px solid #4ade80;
     padding: 1rem 2rem;
     border-radius: 10px;
@@ -215,18 +240,18 @@
 .ticket-badge span {
     display: block;
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-bottom: 0.2rem;
 }
 
 .ticket-badge strong {
     font-size: 1.8rem;
-    color: #4ade80;
+    color: #16a34a; /* Green 600 */
     letter-spacing: 2px;
 }
 
 .instruction {
-    color: #cbd5e1;
+    color: var(--text-muted);
     margin-bottom: 2rem;
     line-height: 1.5;
 }
@@ -235,10 +260,11 @@
     margin-top: 1.5rem;
 }
 .text-link {
-    color: #94a3b8;
+    color: var(--text-muted);
     text-decoration: underline;
     cursor: pointer;
 }
+.text-link:hover { color: var(--text-main); }
 
 /* --- ESTILOS DEL MODAL --- */
 
@@ -248,10 +274,10 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4); /* Lighter overlay */
     backdrop-filter: blur(5px);
-    z-index: 1000;
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -260,27 +286,28 @@
 
 /* Caja del contenido del modal */
 .modal-content {
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(74, 222, 128, 0.3); /* Borde verde sutil */
-    box-shadow: 0 0 50px rgba(74, 222, 128, 0.15);
+    background: var(--modal-bg);
+    border: 1px solid rgba(74, 222, 128, 0.5);
+    box-shadow: 0 0 50px rgba(74, 222, 128, 0.1);
     border-radius: 20px;
     padding: 2.5rem;
     max-width: 500px;
-    width: 100%;
+    width: 90%;
     text-align: center;
-    color: #fff;
+    color: var(--text-main);
     position: relative;
+    animation: popIn 0.3s ease-out;
 }
 
 .modal-header h2 {
-    color: #4ade80;
+    color: #16a34a; /* Green 600 */
     font-size: 1.5rem;
     margin: 1rem 0;
 }
 
 /* Visualización del Ticket ID */
 .ticket-display {
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(15, 23, 42, 0.05);
     padding: 1rem;
     border-radius: 10px;
     margin: 1.5rem 0;
@@ -290,7 +317,7 @@
 .ticket-label {
     display: block;
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--text-muted);
     letter-spacing: 2px;
     margin-bottom: 0.5rem;
 }
@@ -298,13 +325,13 @@
 .ticket-number {
     font-size: 2rem;
     font-weight: 800;
-    color: #fff;
+    color: #16a34a;
     letter-spacing: 1px;
 }
 
 /* Resumen de datos */
 .modal-summary {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.03);
     border-radius: 10px;
     padding: 1.5rem;
     text-align: left;
@@ -316,7 +343,7 @@
     justify-content: space-between;
     margin-bottom: 0.8rem;
     font-size: 0.95rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.5rem;
 }
 
@@ -327,86 +354,41 @@
 }
 
 .summary-row strong {
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 .summary-row span {
-    color: #fff;
+    color: var(--text-main);
     text-align: right;
     max-width: 60%;
 }
 
 .modal-note {
     font-size: 0.85rem;
-    color: #cbd5e1;
+    color: var(--text-muted);
     margin-bottom: 2rem;
     line-height: 1.4;
-}
-/* --- ESTILOS DEL MODAL (Pega esto al final de tu CSS) --- */
-
-.modal-overlay {
-    position: fixed; /* Esto es vital para que flote sobre todo */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7); /* Fondo oscuro */
-    backdrop-filter: blur(5px);
-    z-index: 9999; /* Debe ser el número más alto */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background: #1e293b; /* Color de fondo sólido */
-    border: 1px solid #4ade80;
-    padding: 2rem;
-    border-radius: 15px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-    color: white;
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
-    animation: popIn 0.3s ease-out;
 }
 
 /* Animación de entrada */
 @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-.ticket-display {
-    background: rgba(0,0,0,0.3);
-    padding: 10px;
-    margin: 15px 0;
-    border-radius: 8px;
-    border: 1px dashed #4ade80;
-}
-
-.ticket-number {
-    display: block;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #4ade80;
-}
-
-.modal-summary {
-    text-align: left;
-    margin: 15px 0;
-    font-size: 0.9rem;
-    color: #cbd5e1;
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 .btn-glow {
     margin-top: 15px;
     padding: 10px 20px;
-    background: #2563eb;
+    background: var(--accent-blue);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+.btn-glow:hover {
+    background: #2563eb;
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
 }
 
 /* Contenedor para los botones superiores */
@@ -433,7 +415,7 @@
 
 /* Estilo específico para Cancelar/Volver */
 .nav-link.back {
-    color: #64748b; /* Gris azulado */
+    color: var(--text-muted); /* Gris azulado */
 }
 .nav-link.back:hover {
     color: #ef4444; /* Rojo al pasar el mouse */
@@ -442,13 +424,13 @@
 
 /* Estilo específico para el botón de Buscar */
 .nav-link.search {
-    color: #3b82f6; /* Azul brillante */
+    color: var(--accent-blue); /* Azul brillante */
     background: rgba(59, 130, 246, 0.1);
     border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .nav-link.search:hover {
-    background: #3b82f6;
+    background: var(--accent-blue);
     color: white;
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
     transform: translateY(-1px);
@@ -458,16 +440,6 @@
 .form-header {
     text-align: center;
     margin-bottom: 2rem;
-}
-
-/* Animación del Modal */
-@keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.animate-pop-in {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 /* Responsive */

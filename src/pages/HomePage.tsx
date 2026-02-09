@@ -34,9 +34,11 @@ const HomePage = () => {
 
                     <div className="action-buttons">
                         <Link to="/formulario" className="btn-primary-glow">
-                            <span className="btn-icon">📝</span> INGRESAR SOLICITUD
+                            <span className="btn-icon">📝</span> INGRESO DE SOLICITUD
                         </Link>
-                        
+                        <Link to="/registro" className="btn-primary-glow">
+                            <span className="btn-icon">📝</span> CONSULTA DE SOLICITUD
+                        </Link>
                         <Link to="/login" className="btn-secondary-ghost">
                             Acceso Administrativo &rarr;
                         </Link>

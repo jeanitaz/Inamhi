@@ -22,6 +22,8 @@ const AppRoutes = () => {
             <Route path="/formulario" element={<Formulario />} />
             <Route path="/registro" element={<TicketTracking />} />
             <Route path="/login" element={<LoginAdmin />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="/listado" element={<Historial_tickets />} />
 
             {/* --- Rutas Privadas / Gestión --- */}
             <Route 
@@ -39,18 +41,8 @@ const AppRoutes = () => {
                 } 
             />     
 
-            <Route 
-                path="/tecnico" 
-                element={
-                    <ProtectedRoute requireAdmin={true}>
-                        <TechnicianDashboard />
-                    </ProtectedRoute>
-                } 
-            /> 
-
-            
-            <Route path="/listado" element={<Historial_tickets />} />
-            <Route path="/reportes" element={<Reportes />} />
+       
+            <Route path="/tecnico" element={<TechnicianDashboard />} />
         </Routes>
     )
 }

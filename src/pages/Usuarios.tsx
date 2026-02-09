@@ -13,6 +13,7 @@ interface Ticket {
     prio?: string;
     name?: string;
     area?: string;
+    description?: string;
     [key: string]: any;
 }
 
@@ -239,6 +240,8 @@ export default function TechnicianDashboard() {
                                 <div className="ticket-body">
                                     <h3>{t.type}</h3>
                                     <p className="desc">"{t.name}" - {t.area}</p>
+                                    <h3>Descripcion del Problema</h3>
+                                    <p className="desc">"{t.description}"</p>
 
                                     <div className="ticket-meta">
                                         <div className="meta-item">

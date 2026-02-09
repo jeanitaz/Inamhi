@@ -99,6 +99,16 @@ export default function Admin() {
             <div className="admin-bg-stars"></div>
             <div className="admin-bg-glow"></div>
 
+            {/* Animación de Partículas Flotantes */}
+            <div className="admin-particles">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
             <aside className="glass-sidebar">
                 <div className="sidebar-header">
                     <img src={logoInamhi} alt="Logo INAMHI" className="sidebar-logo" />

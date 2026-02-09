@@ -11,8 +11,15 @@ const FilterIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="
 const EditIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>);
 const CloseIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const ExcelIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
-/* --- NUEVO ICONO DE BASURA --- */
 const TrashIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
+
+// --- NUEVO ICONO DE OJO (VER EVIDENCIA) ---
+const EyeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
 
 interface Ticket {
   id: string;
@@ -22,6 +29,8 @@ interface Ticket {
   type: string;
   tech: string;
   status: string;
+  description?: string; 
+  evidence_url?: string;
 }
 
 interface TechUser {
@@ -30,7 +39,7 @@ interface TechUser {
 
 const TicketHistory = () => {
   // NOTA: Si estás probando en local, cambia la IP a localhost si es necesario
-  const API_BASE_URL = 'http://10.0.153.73:3001'; 
+  const API_BASE_URL = 'http://10.0.153.73:3001';
 
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [technicians, setTechnicians] = useState<TechUser[]>([]);
@@ -73,9 +82,7 @@ const TicketHistory = () => {
     }
   };
 
-  // --- NUEVA FUNCIÓN PARA ELIMINAR ---
   const handleDeleteTicket = async (id: string) => {
-    // 1. Confirmación de seguridad
     const confirmacion = window.confirm(
       `¿Estás seguro de que deseas eliminar el ticket ${id}?\n\nEsta acción no se puede deshacer.`
     );
@@ -83,13 +90,11 @@ const TicketHistory = () => {
     if (!confirmacion) return;
 
     try {
-      // 2. Petición DELETE a la API
       const response = await fetch(`${API_BASE_URL}/api/tickets/${id}`, {
         method: 'DELETE',
-      });
+      }); 
 
       if (response.ok) {
-        // 3. Actualizar estado local (filtrar el eliminado)
         setAllTickets(prev => prev.filter(t => t.id !== id));
         alert("Ticket eliminado correctamente.");
       } else {
@@ -241,8 +246,10 @@ const TicketHistory = () => {
                 <th>ID</th>
                 <th>Fecha</th>
                 <th>Solicitante</th>
+                <th>Descripción</th>
                 <th>Área</th>
                 <th>Problema</th>
+                <th className="text-center">Evidencia</th> {/* Centrado el título */}
                 <th>Técnico Responsable</th>
                 <th>Estado</th>
                 <th className="text-center">Acciones</th>
@@ -250,14 +257,43 @@ const TicketHistory = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="text-center">Cargando...</td></tr>
+                <tr><td colSpan={10} className="text-center">Cargando...</td></tr>
               ) : filteredTickets.map((ticket) => (
                 <tr key={ticket.id}>
                   <td className="col-id">{ticket.id}</td>
                   <td className="col-date">{ticket.date}</td>
                   <td className="col-main">{ticket.name}</td>
+                  <td className="col-description">{ticket.description}</td>
                   <td>{ticket.area}</td>
                   <td>{ticket.type}</td>
+                  
+                  {/* --- AQUI ESTA LA IMPLEMENTACION DE LA EVIDENCIA --- */}
+                  <td className="text-center">
+                    {ticket.evidence_url ? (
+                      <a 
+                        href={`${API_BASE_URL}${ticket.evidence_url}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        title="Ver Evidencia"
+                        style={{ 
+                          color: '#3b82f6', 
+                          cursor: 'pointer', 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '5px',
+                          textDecoration: 'none',
+                          fontWeight: '600',
+                          fontSize: '0.85rem'
+                        }}
+                      >
+                        <EyeIcon /> 
+                        Ver
+                      </a>
+                    ) : (
+                      <span style={{ opacity: 0.5, fontSize: '0.8rem', fontStyle: 'italic' }}>Sin archivo</span>
+                    )}
+                  </td>
+                  {/* --------------------------------------------------- */}
 
                   <td className="col-tech">
                     {ticket.tech && ticket.tech !== 'Sin Asignar' ? (
@@ -271,18 +307,17 @@ const TicketHistory = () => {
                   </td>
 
                   <td><span className={`badge ${getStatusClass(ticket.status)}`}>{ticket.status}</span></td>
-                  
-                  {/* --- ACCIONES CON BOTON ELIMINAR AGREGADO --- */}
+
                   <td className="text-center">
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                       <button className="btn-action" onClick={() => handleOpenModal(ticket)} title="Editar">
                         <EditIcon />
                       </button>
-                      <button 
-                        className="btn-action delete" // Clase nueva para estilo rojo
-                        onClick={() => handleDeleteTicket(ticket.id)} 
+                      <button
+                        className="btn-action delete"
+                        onClick={() => handleDeleteTicket(ticket.id)}
                         title="Eliminar"
-                        style={{ color: '#ff4757' }} // Color rojo directo
+                        style={{ color: '#ff4757' }}
                       >
                         <TrashIcon />
                       </button>
@@ -309,6 +344,16 @@ const TicketHistory = () => {
               <div className="info-grid">
                 <div className="info-item"><label>Solicitante:</label><span>{editingTicket.name}</span></div>
                 <div className="info-item full-width"><label>Problema:</label><p>{editingTicket.type}</p></div>
+                <div className="info-item full-width"><label>Descripción:</label><p>{editingTicket.description}</p></div>
+                {/* Opcional: Mostrar también el enlace en el modal */}
+                {editingTicket.evidence_url && (
+                   <div className="info-item full-width">
+                     <label>Evidencia:</label>
+                     <a href={`${API_BASE_URL}${editingTicket.evidence_url}`} target="_blank" rel="noopener noreferrer" style={{color: '#3b82f6'}}>
+                        Ver archivo adjunto
+                     </a>
+                   </div>
+                )}
               </div>
 
               <hr className="modal-divider" />

@@ -1,11 +1,12 @@
-/* --- VARIABLES LOCALES (Por si no están globales) --- */
+/* --- VARIABLES LOCALES (Cyber Glass Light) --- */
 :root {
-    --modal-bg: rgba(15, 23, 42, 0.95);
-    --modal-border: rgba(59, 130, 246, 0.3);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --modal-bg: rgba(255, 255, 255, 0.95);
+    --modal-border: rgba(15, 23, 42, 0.1);
+    --text-primary: #1e293b; /* Slate 800 */
+    --text-secondary: #64748b; /* Slate 500 */
     --neon-accent: #3b82f6;
-    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-bg: rgba(15, 23, 42, 0.05); /* Light gray input */
+    --glass-card-bg: rgba(255, 255, 255, 0.75);
 }
 
 /* Layout específico del contenedor del formulario */
@@ -19,14 +20,14 @@
 
 /* --- TARJETA DE VIDRIO (GLASS CARD) --- */
 .glass-form-card {
-    background: rgba(15, 23, 42, 0.6); /* Fondo semi-transparente */
-    backdrop-filter: blur(16px);       /* Efecto borroso fuerte */
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--modal-border);
     width: 100%;
-    max-width: 600px; /* Ancho máximo para que no se estire demasiado */
+    max-width: 600px;
     border-radius: 24px;
     padding: 3rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); /* Lighter shadow */
     position: relative;
     overflow: hidden;
 }
@@ -36,7 +37,7 @@
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    background: linear-gradient(90deg, transparent, var(--neon-accent), transparent);
     opacity: 0.5;
 }
 
@@ -49,22 +50,23 @@
 .icon-circle {
     width: 60px; height: 60px;
     background: rgba(59, 130, 246, 0.1);
-    border: 1px solid var(--neon-blue);
+    border: 1px solid var(--neon-accent);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.8rem;
     margin: 0 auto 1rem auto;
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    color: var(--neon-accent);
 }
 
 .form-header h2 {
     margin: 0;
-    color: white;
+    color: var(--text-primary);
     font-size: 1.8rem;
 }
 
 .form-header p {
-    color: var(--adm-text-muted);
+    color: var(--text-secondary);
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
@@ -78,7 +80,7 @@
 
 .form-group label {
     display: block;
-    color: var(--adm-text-muted);
+    color: var(--text-secondary);
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
@@ -95,7 +97,7 @@
 .input-icon {
     position: absolute;
     left: 16px;
-    color: var(--neon-blue);
+    color: var(--neon-accent);
     opacity: 0.8;
     font-size: 1.1rem;
 }
@@ -103,11 +105,11 @@
 .form-group input,
 .form-group select {
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
+    border: 1px solid var(--modal-border);
     border-radius: 12px;
     padding: 14px 14px 14px 45px; /* Espacio para el icono */
-    color: white;
+    color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.3s ease;
 }
@@ -115,7 +117,7 @@
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--neon-blue);
+    border-color: var(--neon-accent);
     background: rgba(59, 130, 246, 0.05);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
@@ -128,10 +130,10 @@
     border: none;
     cursor: pointer;
     font-size: 1.2rem;
-    color: var(--adm-text-muted);
+    color: var(--text-secondary);
     transition: 0.2s;
 }
-.toggle-pass:hover { color: white; }
+.toggle-pass:hover { color: var(--text-primary); }
 
 /* Grid de filas */
 .form-row {
@@ -146,14 +148,14 @@
     display: flex;
     gap: 1rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--modal-border);
 }
 
 .btn-ghost {
     flex: 1;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--adm-text-muted);
+    border: 1px solid var(--modal-border);
+    color: var(--text-secondary);
     padding: 12px;
     border-radius: 12px;
     font-weight: 600;
@@ -161,14 +163,14 @@
     transition: 0.3s;
 }
 .btn-ghost:hover {
-    border-color: white;
-    color: white;
-    background: rgba(255,255,255,0.05);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.05);
 }
 
 .btn-neon-primary {
     flex: 2; /* Más grande que el cancelar */
-    background: linear-gradient(135deg, var(--neon-blue), #2563eb);
+    background: linear-gradient(135deg, var(--neon-accent), #2563eb);
     color: white;
     border: none;
     padding: 12px;
@@ -188,15 +190,15 @@
 
 /* Header Botón volver */
 .btn-back {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--adm-text-muted);
+    background: rgba(255,255,255,0.8);
+    border: 1px solid var(--modal-border);
+    color: var(--text-secondary);
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.2s;
 }
-.btn-back:hover { background: rgba(255,255,255,0.1); color: white; }
+.btn-back:hover { background: white; color: var(--text-primary); }
 
 /* --- ESTILOS DEL MODAL --- */
 .modal-overlay {
@@ -205,7 +207,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.4); /* Lighter overlay */
     backdrop-filter: blur(5px);
     display: flex;
     justify-content: center;
@@ -222,10 +224,9 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Reutiliza estilos existentes si ya los tienes, o agrega estos */
 .modal-content {
-    background: rgba(18, 18, 28, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--modal-bg);
+    border: 1px solid var(--modal-border);
     padding: 2rem;
     border-radius: 20px;
     box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
@@ -234,7 +235,7 @@
 /* Nuevo Layout Grid */
 .creation-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr; /* Formulario más ancho que info */
+    grid-template-columns: 1.5fr 1fr;
     gap: 2rem;
     width: 100%;
     max-width: 1100px;
@@ -250,29 +251,32 @@
 
 /* Tarjetas Informativas */
 .info-card {
-    background: rgba(30, 41, 59, 0.6);
+    background: rgba(255, 255, 255, 0.75); /* Lighter */
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--modal-border);
     border-radius: 16px;
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
     transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .info-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .info-card h3 {
-    color: #fff;
+    color: var(--text-primary);
     margin: 0.5rem 0 0.5rem 0;
     font-size: 1.1rem;
+    font-weight: 700;
 }
 
 .info-card p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
@@ -286,24 +290,24 @@
 /* Variantes de color */
 .warning-card {
     border-left: 4px solid #f59e0b;
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, rgba(255, 255, 255, 0.7) 100%);
 }
 
 .info-blue {
     border-left: 4px solid #3b82f6;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, rgba(255, 255, 255, 0.7) 100%);
 }
 
 .success-card {
     border-left: 4px solid #10b981;
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 0.7) 100%);
 }
 
 /* Lista dentro de tarjeta */
 .info-list {
     padding-left: 1.2rem;
     margin: 0;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 .info-list li {
@@ -313,15 +317,13 @@
 /* Responsive */
 @media (max-width: 900px) {
     .creation-grid {
-        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        grid-template-columns: 1fr;
     }
-    
     .info-column {
-        flex-direction: row; /* En tablets, poner cards abajo en fila */
+        flex-direction: row;
         overflow-x: auto;
         padding-bottom: 1rem;
     }
-    
     .info-card {
         min-width: 280px;
     }
@@ -329,7 +331,7 @@
 
 @media (max-width: 600px) {
     .info-column {
-        flex-direction: column; /* En móvil puro, columna vertical */
+        flex-direction: column;
     }
     .info-card {
         min-width: auto;
@@ -345,12 +347,12 @@
     margin-bottom: 2rem;
     flex-wrap: wrap;
     gap: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--modal-border);
     padding-bottom: 1rem;
 }
 
 .section-title {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.5rem;
     border-left: 4px solid #00d2ff;
     padding-left: 1rem;
@@ -360,7 +362,7 @@
 .filter-tabs {
     display: flex;
     gap: 0.5rem;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(15, 23, 42, 0.05);
     padding: 5px;
     border-radius: 12px;
 }
@@ -368,7 +370,7 @@
 .filter-tab {
     background: transparent;
     border: none;
-    color: #aaa;
+    color: var(--text-secondary);
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
@@ -377,13 +379,13 @@
 }
 
 .filter-tab:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.05);
 }
 
 .filter-tab.active {
     background: #00d2ff;
-    color: #09090b;
+    color: white;
     font-weight: bold;
     box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
 }
@@ -396,8 +398,8 @@
 }
 
 .user-card-glass {
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.75); /* Light card */
+    border: 1px solid var(--modal-border);
     backdrop-filter: blur(10px);
     border-radius: 16px;
     padding: 1.5rem;
@@ -406,12 +408,14 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .user-card-glass:hover {
     transform: translateY(-5px);
     border-color: rgba(0, 210, 255, 0.5);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .user-card-header {
@@ -448,31 +452,31 @@
 }
 
 .role-tecnico {
-    background: rgba(46, 213, 115, 0.15);
-    color: #2ed573;
+    background: rgba(46, 213, 115, 0.2);
+    color: #059669; /* Darker green for light bg */
     border: 1px solid rgba(46, 213, 115, 0.3);
 }
 
 .role-pasante {
-    background: rgba(255, 159, 67, 0.15);
-    color: #ff9f43;
+    background: rgba(255, 159, 67, 0.2);
+    color: #d97706; /* Darker orange */
     border: 1px solid rgba(255, 159, 67, 0.3);
 }
 
 .role-admin {
-    background: rgba(255, 71, 87, 0.15);
-    color: #ff6b81;
+    background: rgba(255, 71, 87, 0.2);
+    color: #dc2626; /* Darker red */
     border: 1px solid rgba(255, 71, 87, 0.3);
 }
 
 .user-card-body h4 {
-    color: white;
+    color: var(--text-primary);
     margin: 0;
     font-size: 1.1rem;
 }
 
 .user-card-body p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     margin: 0.5rem 0 1.5rem 0;
     word-break: break-all;
@@ -480,7 +484,7 @@
 
 .user-card-footer {
     width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--modal-border);
     padding-top: 1rem;
 }
 
