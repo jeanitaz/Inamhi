@@ -17,7 +17,7 @@ const ADMIN_CREDENTIALS = {
 type Role = 'admin' | 'tecnico';
 
 const LoginAdmin = () => {
-    const [role, setRole] = useState<Role>('admin'); 
+    const [role, setRole] = useState<Role>('admin');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -27,7 +27,7 @@ const LoginAdmin = () => {
     // =================================================================
     // 2. IP DEL SERVIDOR (IMPORTANTE: APUNTAR AL SERVIDOR, NO LOCALHOST)
     // =================================================================
-    const API_LOGIN_URL = 'http://10.0.153.73:3001/api/login';
+    const API_LOGIN_URL = 'http://localhost:3001/api/login';
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -60,7 +60,7 @@ const LoginAdmin = () => {
                 body: JSON.stringify({
                     email: email,
                     password: password,
-                    rol: 'Tecnico' 
+                    rol: 'Tecnico'
                 })
             });
 
@@ -80,7 +80,7 @@ const LoginAdmin = () => {
 
         } catch (err) {
             console.error(err);
-            setError('Error de conexión con el servidor 10.0.153.73');
+            setError('Error de conexión con el servidor localhost');
         } finally {
             setLoading(false);
         }

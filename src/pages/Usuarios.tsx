@@ -45,7 +45,7 @@ export default function TechnicianDashboard() {
     const fetchTickets = async () => {
         try {
             // RECUERDA: Si usas esto en red, cambia localhost por tu IP (ej. 192.168.1.X)
-            const response = await fetch('http://10.0.153.73:3001/api/tickets');
+            const response = await fetch('http://localhost:3001/api/tickets');
             if (response.ok) {
                 const data = await response.json();
                 const formattedTickets = data.map((t: Ticket) => ({
@@ -97,7 +97,7 @@ export default function TechnicianDashboard() {
     // Acción: Auto-asignarse un ticket de la bolsa
     const tomarTicket = async (id: Ticket['id']) => {
         try {
-            const response = await fetch(`http://10.0.153.73:3001/api/tickets/${id}`, {
+            const response = await fetch(`http://localhost:3001/api/tickets/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -121,7 +121,7 @@ export default function TechnicianDashboard() {
     const finalizarTicket = async (id: Ticket['id']) => {
         if (window.confirm("¿Marcar ticket como resuelto?")) {
             try {
-                const response = await fetch(`http://10.0.153.73:3001/api/tickets/${id}`, {
+                const response = await fetch(`http://localhost:3001/api/tickets/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

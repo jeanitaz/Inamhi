@@ -14,12 +14,12 @@ const CreacionUsuarios = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    
+
     // --- ESTADOS ---
     const [listaUsuarios, setListaUsuarios] = useState<Usuario[]>([]);
     const [filterRole, setFilterRole] = useState('Todos');
     const [loadingList, setLoadingList] = useState(true);
-    
+
     const [visiblePasswords, setVisiblePasswords] = useState<{ [key: number]: boolean }>({});
 
     const INITIAL_FORM_STATE = {
@@ -36,7 +36,7 @@ const CreacionUsuarios = () => {
     // =================================================================
     // 1. IP DEL SERVIDOR (IMPORTANTE: CAMBIADO DE LOCALHOST A IP REAL)
     // =================================================================
-    const API_URL = 'http://10.0.153.73:3001/api/usuarios';
+    const API_URL = 'http://localhost:3001/api/usuarios';
 
     // --- CARGAR USUARIOS ---
     useEffect(() => {
@@ -53,7 +53,7 @@ const CreacionUsuarios = () => {
             }
         } catch (error) {
             console.error("Error cargando usuarios:", error);
-            alert("No se pudo conectar al servidor 10.0.153.73. Revisa si estás conectado a la VPN/Red.");
+            alert("No se pudo conectar al servidor localhost. Revisa si estás conectado a la VPN/Red.");
         } finally {
             setLoadingList(false);
         }
@@ -111,7 +111,7 @@ const CreacionUsuarios = () => {
             }
         } catch (error) {
             console.error(error);
-            alert("Error de conexión con el servidor 10.0.153.73");
+            alert("Error de conexión con el servidor localhost");
         } finally {
             setIsLoading(false);
         }
@@ -250,7 +250,7 @@ const CreacionUsuarios = () => {
                     </div>
 
                     {loadingList ? (
-                        <p style={{color: 'white', textAlign: 'center'}}>Cargando usuarios del servidor...</p>
+                        <p style={{ color: 'white', textAlign: 'center' }}>Cargando usuarios del servidor...</p>
                     ) : (
                         <div className="users-grid">
                             {filteredUsers.length > 0 ? filteredUsers.map((user) => (
@@ -266,12 +266,12 @@ const CreacionUsuarios = () => {
                                     <div className="user-card-body">
                                         <h4>{user.nombre}</h4>
                                         <p>{user.email}</p>
-                                        
+
                                         {/* --- MOSTRAR CONTRASEÑA --- */}
-                                        <div style={{ 
-                                            background: 'rgba(0,0,0,0.3)', 
-                                            padding: '8px', 
-                                            borderRadius: '8px', 
+                                        <div style={{
+                                            background: 'rgba(0,0,0,0.3)',
+                                            padding: '8px',
+                                            borderRadius: '8px',
                                             marginTop: '10px',
                                             display: 'flex',
                                             alignItems: 'center',
@@ -281,7 +281,7 @@ const CreacionUsuarios = () => {
                                             <span style={{ color: '#ccc', fontFamily: 'monospace' }}>
                                                 {visiblePasswords[user.id] ? user.password || '******' : '••••••••'}
                                             </span>
-                                            <button 
+                                            <button
                                                 onClick={() => togglePasswordVisibility(user.id)}
                                                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', fontSize: '1.2rem', padding: '0 5px' }}
                                                 title={visiblePasswords[user.id] ? "Ocultar" : "Mostrar"}
@@ -292,8 +292,8 @@ const CreacionUsuarios = () => {
 
                                     </div>
                                     <div className="user-card-footer">
-                                        <button 
-                                            className="btn-icon delete" 
+                                        <button
+                                            className="btn-icon delete"
                                             onClick={() => handleDelete(user.id)}
                                             style={{ width: '100%', color: '#ff4757', background: 'rgba(255, 71, 87, 0.1)' }}
                                         >
@@ -317,7 +317,7 @@ const CreacionUsuarios = () => {
                     <div className="modal-content glass-form-card animate-pop" style={{ maxWidth: '400px', textAlign: 'center' }}>
                         <div className="icon-circle" style={{ background: 'rgba(0, 255, 136, 0.2)', color: '#00ff88', fontSize: '2.5rem', width: '80px', height: '80px', margin: '0 auto 1rem' }}>🎉</div>
                         <h2 style={{ color: '#fff', marginBottom: '0.5rem' }}>¡Usuario Creado!</h2>
-                        <p style={{color: '#ccc'}}>Guardado en el servidor exitosamente.</p>
+                        <p style={{ color: '#ccc' }}>Guardado en el servidor exitosamente.</p>
                         <button className="btn-neon-primary" onClick={() => setShowSuccessModal(false)} style={{ width: '100%', marginTop: '1rem' }}>Aceptar</button>
                     </div>
                 </div>

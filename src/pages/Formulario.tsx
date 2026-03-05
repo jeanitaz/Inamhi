@@ -5,12 +5,12 @@ import logoInamhi from '../assets/lgo.png';
 
 // ... (MANTENER LOS ARRAYS DE AREAS Y TIPOS IGUAL QUE ANTES) ...
 const AREAS_INSTITUCIONALES = [
-    "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN", 
+    "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN",
     "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA",
     "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS",
     "DIRECCIÓN ADMINISTRATIVA FINANCIERA",
     "DIRECCIÓN EJECUTIVA",
-    "DIRECCIÓN DE ASESORÍA JURÍDICA",    
+    "DIRECCIÓN DE ASESORÍA JURÍDICA",
     "DIRECCIÓN DE COMUNICACIÓN SOCIAL",
     "DIRECCIÓN DE PLANIFICACIÓN",
     "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS",
@@ -73,7 +73,7 @@ const ServiceRequestForm = () => {
 
         try {
             // 1. Enviamos los datos al Backend (Node.js)
-            const response = await fetch('http://10.0.153.73:3001/api/tickets', {
+            const response = await fetch('http://localhost:3001/api/tickets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ interface Ticket {
   type: string;
   tech: string;
   status: string;
-  description?: string; 
+  description?: string;
   evidence_url?: string;
 }
 
@@ -39,7 +39,7 @@ interface TechUser {
 
 const TicketHistory = () => {
   // NOTA: Si estás probando en local, cambia la IP a localhost si es necesario
-  const API_BASE_URL = 'http://10.0.153.73:3001';
+  const API_BASE_URL = 'http://localhost:3001';
 
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [technicians, setTechnicians] = useState<TechUser[]>([]);
@@ -92,7 +92,7 @@ const TicketHistory = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/tickets/${id}`, {
         method: 'DELETE',
-      }); 
+      });
 
       if (response.ok) {
         setAllTickets(prev => prev.filter(t => t.id !== id));
@@ -266,27 +266,27 @@ const TicketHistory = () => {
                   <td className="col-description">{ticket.description}</td>
                   <td>{ticket.area}</td>
                   <td>{ticket.type}</td>
-                  
+
                   {/* --- AQUI ESTA LA IMPLEMENTACION DE LA EVIDENCIA --- */}
                   <td className="text-center">
                     {ticket.evidence_url ? (
-                      <a 
-                        href={`${API_BASE_URL}${ticket.evidence_url}`} 
-                        target="_blank" 
+                      <a
+                        href={`${API_BASE_URL}${ticket.evidence_url}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         title="Ver Evidencia"
-                        style={{ 
-                          color: '#3b82f6', 
-                          cursor: 'pointer', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
+                        style={{
+                          color: '#3b82f6',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
                           gap: '5px',
                           textDecoration: 'none',
                           fontWeight: '600',
                           fontSize: '0.85rem'
                         }}
                       >
-                        <EyeIcon /> 
+                        <EyeIcon />
                         Ver
                       </a>
                     ) : (
@@ -347,12 +347,12 @@ const TicketHistory = () => {
                 <div className="info-item full-width"><label>Descripción:</label><p>{editingTicket.description}</p></div>
                 {/* Opcional: Mostrar también el enlace en el modal */}
                 {editingTicket.evidence_url && (
-                   <div className="info-item full-width">
-                     <label>Evidencia:</label>
-                     <a href={`${API_BASE_URL}${editingTicket.evidence_url}`} target="_blank" rel="noopener noreferrer" style={{color: '#3b82f6'}}>
-                        Ver archivo adjunto
-                     </a>
-                   </div>
+                  <div className="info-item full-width">
+                    <label>Evidencia:</label>
+                    <a href={`${API_BASE_URL}${editingTicket.evidence_url}`} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>
+                      Ver archivo adjunto
+                    </a>
+                  </div>
                 )}
               </div>
 
