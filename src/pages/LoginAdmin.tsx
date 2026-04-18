@@ -27,7 +27,7 @@ const LoginAdmin = () => {
     // =================================================================
     // 2. IP DEL SERVIDOR (IMPORTANTE: APUNTAR AL SERVIDOR, NO LOCALHOST)
     // =================================================================
-    const API_LOGIN_URL = 'http://localhost:3001/api/login';
+    const API_LOGIN_URL = 'http://10.0.153.73:3001/api/login';
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

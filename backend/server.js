@@ -2,10 +2,22 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+// NUEVO: Importamos multer, path y fs
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors()); // Permite que React se conecte
 app.use(bodyParser.json());
+
+// NUEVO: Hacemos que la carpeta 'uploads' sea pública para que React pueda ver las imágenes/PDFs
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// NUEVO: Crear la carpeta uploads automáticamente si no existe
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
 
 // 1. CONFIGURACIÓN DE LA BASE DE DATOS
 const db = mysql.createConnection({
@@ -25,11 +37,27 @@ db.connect(err => {
 });
 
 // =========================================================================
+//  CONFIGURACIÓN DE MULTER (Para guardar archivos)
+// =========================================================================
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Los archivos irán a la carpeta uploads
+    },
+    filename: (req, file, cb) => {
+        // Renombramos el archivo para que no haya duplicados: fecha_actual-nombre_original
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+
+// =========================================================================
 //  GESTIÓN DE TICKETS
 // =========================================================================
 
-// 2. CREAR TICKET
-app.post('/api/tickets', (req, res) => {
+// 2. CREAR TICKET (ACTUALIZADO CON MULTER)
+app.post('/tickets', upload.single('evidence'), (req, res) => {
     const {
         fullName, area, position, email, phone,
         reqType, otherDetail, description, observations
@@ -39,22 +67,27 @@ app.post('/api/tickets', (req, res) => {
         return res.status(400).send({ message: 'Faltan campos obligatorios' });
     }
 
+    // NUEVO: Verificamos si vino un archivo y guardamos su nombre
+    const archivoEvidencia = req.file ? req.file.filename : null;
+
     const sql = `
         INSERT INTO tickets_soporte (
             nombre_completo, cargo, correo_institucional, telefono_extension, 
             id_area, id_tipo_requerimiento, detalle_otro_requerimiento, 
-            descripcion_problema, observaciones_adicionales, tecnico_asignado
+            descripcion_problema, observaciones_adicionales, tecnico_asignado,
+            archivo_evidencia 
         ) VALUES (
             ?, ?, ?, ?, 
-            (SELECT id_area FROM catalogo_areas WHERE TRIM(nombre_area) = TRIM(?) LIMIT 1),
-            (SELECT id_tipo FROM catalogo_tipos WHERE TRIM(nombre_tipo) = TRIM(?) LIMIT 1),
-            ?, ?, ?, NULL
+            ?, ?, 
+            ?, ?, ?, NULL, ?
         )
     `;
 
+    // Añadimos archivoEvidencia al final del array de valores
     const values = [
         fullName, position, email, phone,
-        area, reqType, otherDetail || null, description, observations || null
+        area, reqType, otherDetail || null, description, observations || null,
+        archivoEvidencia
     ];
 
     db.query(sql, values, (err, result) => {
@@ -62,18 +95,16 @@ app.post('/api/tickets', (req, res) => {
             console.error(err);
             return res.status(500).send({ message: 'Error al guardar en base de datos', error: err });
         }
-        // CAMBIO AQUÍ: Formato largo con -ST al final
         const newTicketId = `INAMHI-DAF-UTICS-${new Date().getFullYear()}-${String(result.insertId).padStart(4, '0')}-ST`;
         res.status(200).send({ message: 'Ticket creado correctamente', ticketId: newTicketId });
     });
 });
 
-// 3. BUSCAR TICKET
-app.get('/api/tickets/search', (req, res) => {
+// 3. BUSCAR TICKET (ACTUALIZADO PARA DEVOLVER EL ARCHIVO)
+app.get('/search', (req, res) => {
     const term = req.query.term;
     if (!term) return res.status(400).send({ message: 'Término de búsqueda requerido' });
 
-    // CAMBIO AQUÍ: SQL CONCAT actualizado para buscar el formato largo con -ST
     const sql = `
         SELECT t.*, a.nombre_area as area_nombre, tr.nombre_tipo as tipo_nombre
         FROM tickets_soporte t
@@ -81,6 +112,7 @@ app.get('/api/tickets/search', (req, res) => {
         LEFT JOIN catalogo_tipos tr ON t.id_tipo_requerimiento = tr.id_tipo
         WHERE t.nombre_completo LIKE ? 
         OR CONCAT('INAMHI-DAF-UTICS-', YEAR(t.fecha_creacion), '-', LPAD(t.id_ticket, 4, '0'), '-ST') = ?
+        ORDER BY t.fecha_creacion DESC
     `;
 
     const searchTermLike = `%${term}%`;
@@ -90,36 +122,42 @@ app.get('/api/tickets/search', (req, res) => {
             console.error("Error en búsqueda:", err);
             return res.status(500).send({ message: 'Error en el servidor' });
         }
-        if (results.length === 0) return res.status(404).send({ message: 'No se encontró el ticket' });
+        if (results.length === 0) return res.status(404).send({ message: 'No se encontraron tickets' });
 
-        const ticket = results[0]; 
-        const formattedTicket = {
-            // CAMBIO AQUÍ: Formato de respuesta JSON
+        const formattedTickets = results.map(ticket => ({
             id: `INAMHI-DAF-UTICS-${new Date(ticket.fecha_creacion).getFullYear()}-${String(ticket.id_ticket).padStart(4, '0')}-ST`,
             date: new Date(ticket.fecha_creacion).toLocaleDateString('es-EC'),
             name: ticket.nombre_completo,
+            cargo: ticket.cargo,
+            email: ticket.correo_institucional,
+            phone: ticket.telefono_extension || 'No registrado',
             area: ticket.area_nombre || (ticket.id_area ? `Error JOIN` : 'Sin Área'),
             type: ticket.tipo_nombre || (ticket.id_tipo_requerimiento ? `Error JOIN` : 'Sin Tipo'),
+            otherDetail: ticket.detalle_otro_requerimiento,
             status: ticket.estado,
             tech: ticket.tecnico_asignado || 'Sin Asignar',
-            description: ticket.descripcion_problema || 'Sin descripción' 
-        };
-        res.json(formattedTicket);
+            description: ticket.descripcion_problema || 'Sin descripción',
+            observations: ticket.observaciones_adicionales || 'Ninguna',
+            // NUEVO: Pasamos el nombre del archivo al frontend
+            evidence: ticket.archivo_evidencia 
+        }));
+        
+        res.json(formattedTickets);
     });
 });
 
-// 4. OBTENER HISTORIAL (GET)
-app.get('/api/tickets', (req, res) => {
+// 4. OBTENER HISTORIAL (ACTUALIZADO PARA DEVOLVER EL ARCHIVO)
+app.get('', (req, res) => {
     const sql = `
     SELECT t.id_ticket, t.nombre_completo, c_area.nombre_area AS area,
         c_tipo.nombre_tipo AS tipo, t.estado, t.fecha_creacion,
-        t.tecnico_asignado, t.descripcion_problema
+        t.tecnico_asignado, t.descripcion_problema, t.archivo_evidencia
     FROM tickets_soporte t
     LEFT JOIN catalogo_areas c_area ON t.id_area = c_area.id_area
     LEFT JOIN catalogo_tipos c_tipo ON t.id_tipo_requerimiento = c_tipo.id_tipo
     ORDER BY t.fecha_creacion DESC
     `;
-    
+
     db.query(sql, (err, results) => {
         if (err) return res.status(500).send({ message: 'Error al obtener historial' });
 
@@ -129,7 +167,6 @@ app.get('/api/tickets', (req, res) => {
             const techName = (ticket.tecnico_asignado && ticket.tecnico_asignado !== '') ? ticket.tecnico_asignado : 'Sin Asignar';
 
             return {
-                // CAMBIO AQUÍ: Formato de respuesta en la lista
                 id: `INAMHI-DAF-UTICS-${year}-${String(ticket.id_ticket).padStart(4, '0')}-ST`,
                 date: dateObj.toLocaleDateString('es-EC'),
                 name: ticket.nombre_completo,
@@ -137,7 +174,9 @@ app.get('/api/tickets', (req, res) => {
                 type: ticket.tipo || 'Tipo Desconocido',
                 status: ticket.estado,
                 tech: techName,
-                description: ticket.descripcion_problema
+                description: ticket.descripcion_problema,
+                // NUEVO: Pasamos el nombre del archivo al frontend
+                evidence: ticket.archivo_evidencia
             };
         });
         res.json(history);
@@ -145,14 +184,12 @@ app.get('/api/tickets', (req, res) => {
 });
 
 // 5. ACTUALIZAR TICKET (PUT)
-app.put('/api/tickets/:id', (req, res) => {
-    const { id } = req.params; 
+app.put('/:id', (req, res) => {
+    const { id } = req.params;
     const { tech, status } = req.body;
-    
-    // CAMBIO IMPORTANTE: Lógica para extraer el ID numérico
-    // Como el ID termina en "-ST", el número es el penúltimo elemento, no el último.
+
     const idParts = id.split('-');
-    const realId = parseInt(idParts[idParts.length - 2]); 
+    const realId = parseInt(idParts[idParts.length - 2]);
 
     if (isNaN(realId)) return res.status(400).send({ message: 'ID de ticket inválido' });
 
@@ -176,11 +213,9 @@ app.put('/api/tickets/:id', (req, res) => {
 });
 
 // 5.1 ELIMINAR TICKET (DELETE)
-app.delete('/api/tickets/:id', (req, res) => {
+app.delete('/:id', (req, res) => {
     const { id } = req.params;
-    
-    // CAMBIO IMPORTANTE: Lógica para extraer el ID numérico
-    // Como el ID termina en "-ST", el número es el penúltimo elemento.
+
     const idParts = id.split('-');
     const realId = parseInt(idParts[idParts.length - 2]);
 
@@ -228,7 +263,7 @@ app.post('/api/usuarios', (req, res) => {
 // 6.1. LISTAR USUARIOS (GET)
 app.get('/api/usuarios', (req, res) => {
     const sql = "SELECT id, nombre_completo AS nombre, email, rol, password FROM usuarios";
-    
+
     db.query(sql, (err, results) => {
         if (err) {
             console.error(err);
@@ -243,7 +278,6 @@ app.put('/api/usuarios/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, email, rol, password } = req.body;
 
-    // Si envían password, actualizamos todo
     if (password && password.trim() !== "") {
         const sql = "UPDATE usuarios SET nombre_completo = ?, email = ?, rol = ?, password = ? WHERE id = ?";
         db.query(sql, [nombre, email, rol, password, id], (err, result) => {
@@ -251,7 +285,6 @@ app.put('/api/usuarios/:id', (req, res) => {
             res.send({ message: 'Usuario actualizado con contraseña' });
         });
     } else {
-        // Si NO envían password, mantenemos la anterior
         const sql = "UPDATE usuarios SET nombre_completo = ?, email = ?, rol = ? WHERE id = ?";
         db.query(sql, [nombre, email, rol, id], (err, result) => {
             if (err) return res.status(500).send({ message: 'Error al actualizar' });
@@ -264,7 +297,7 @@ app.put('/api/usuarios/:id', (req, res) => {
 app.delete('/api/usuarios/:id', (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM usuarios WHERE id = ?";
-    
+
     db.query(sql, [id], (err, result) => {
         if (err) return res.status(500).send({ message: 'Error al eliminar usuario' });
         res.send({ message: 'Usuario eliminado correctamente' });
@@ -280,7 +313,7 @@ app.post('/api/login', (req, res) => {
     if (!email || !password || !rol) return res.status(400).send({ message: 'Credenciales incompletas' });
 
     const sql = "SELECT * FROM usuarios WHERE email = ? AND password = ?";
-    
+
     db.query(sql, [email, password], (err, results) => {
         if (err) return res.status(500).send({ message: 'Error de servidor' });
 
@@ -288,10 +321,9 @@ app.post('/api/login', (req, res) => {
             const user = results[0];
             let accesoPermitido = false;
 
-            // Lógica de permisos
             if (rol === 'Administrador' || rol === 'Admin') {
                 if (user.rol === 'Administrador' || user.rol === 'Admin') accesoPermitido = true;
-            } 
+            }
             else if (rol === 'Tecnico') {
                 if (user.rol === 'Tecnico' || user.rol === 'Pasante') accesoPermitido = true;
             }

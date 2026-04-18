@@ -9,17 +9,20 @@ const BackIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="no
 const SearchIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>);
 const FilterIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>);
 const EditIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>);
-const CloseIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
 const ExcelIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
 const TrashIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
-
-// --- NUEVO ICONO DE OJO (VER EVIDENCIA) ---
 const EyeIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
     <circle cx="12" cy="12" r="3"></circle>
   </svg>
 );
+
+// Nuevos iconos para el modal rediseñado
+const UserIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+const TagIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>;
+const FileTextIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
+const MapPinIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
 
 interface Ticket {
   id: string;
@@ -30,7 +33,7 @@ interface Ticket {
   tech: string;
   status: string;
   description?: string;
-  evidence_url?: string;
+  evidence?: string;
 }
 
 interface TechUser {
@@ -38,8 +41,7 @@ interface TechUser {
 }
 
 const TicketHistory = () => {
-  // NOTA: Si estás probando en local, cambia la IP a localhost si es necesario
-  const API_BASE_URL = 'http://localhost:3001';
+  const API_BASE_URL = 'http://10.0.153.73:3001';
 
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [technicians, setTechnicians] = useState<TechUser[]>([]);
@@ -47,7 +49,6 @@ const TicketHistory = () => {
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [loading, setLoading] = useState(true);
 
-  // Modal State
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [tempData, setTempData] = useState<{ tech: string; status: string }>({ tech: '', status: '' });
   const [saving, setSaving] = useState(false);
@@ -59,7 +60,7 @@ const TicketHistory = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tickets`);
+      const response = await fetch(`${API_BASE_URL}`);
       if (response.ok) {
         const data = await response.json();
         setAllTickets(data);
@@ -90,7 +91,7 @@ const TicketHistory = () => {
     if (!confirmacion) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tickets/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: 'DELETE',
       });
 
@@ -148,7 +149,7 @@ const TicketHistory = () => {
     if (!editingTicket) return;
     setSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tickets/${editingTicket.id}`, {
+      const response = await fetch(`${API_BASE_URL}/${editingTicket.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tempData),
@@ -178,7 +179,6 @@ const TicketHistory = () => {
     }
   };
 
-  // --- FILTRADO ---
   const filteredTickets = allTickets.filter((ticket) => {
     const term = searchTerm.toLowerCase();
     const matchText = (ticket.name?.toLowerCase() || '').includes(term) || (ticket.id?.toLowerCase() || '').includes(term);
@@ -206,10 +206,6 @@ const TicketHistory = () => {
           <div className="header-brand">
             <Link to="/admin" className="btn-back-circle"><BackIcon /></Link>
             <img src={logoInamhi} alt="INAMHI" className="brand-logo" />
-            <div className="brand-text">
-              <h1>Gestión de Incidencias</h1>
-              <p>Panel de Administración</p>
-            </div>
           </div>
 
           <button
@@ -249,7 +245,7 @@ const TicketHistory = () => {
                 <th>Descripción</th>
                 <th>Área</th>
                 <th>Problema</th>
-                <th className="text-center">Evidencia</th> {/* Centrado el título */}
+                <th className="text-center">Evidencia</th>
                 <th>Técnico Responsable</th>
                 <th>Estado</th>
                 <th className="text-center">Acciones</th>
@@ -267,11 +263,10 @@ const TicketHistory = () => {
                   <td>{ticket.area}</td>
                   <td>{ticket.type}</td>
 
-                  {/* --- AQUI ESTA LA IMPLEMENTACION DE LA EVIDENCIA --- */}
                   <td className="text-center">
-                    {ticket.evidence_url ? (
+                    {ticket.evidence ? (
                       <a
-                        href={`${API_BASE_URL}${ticket.evidence_url}`}
+                        href={`${API_BASE_URL}/uploads/${ticket.evidence}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Ver Evidencia"
@@ -293,7 +288,6 @@ const TicketHistory = () => {
                       <span style={{ opacity: 0.5, fontSize: '0.8rem', fontStyle: 'italic' }}>Sin archivo</span>
                     )}
                   </td>
-                  {/* --------------------------------------------------- */}
 
                   <td className="col-tech">
                     {ticket.tech && ticket.tech !== 'Sin Asignar' ? (
@@ -331,39 +325,135 @@ const TicketHistory = () => {
         </div>
       </div>
 
-      {/* --- MODAL (Sin cambios) --- */}
+      {/* --- NUEVO MODAL REDISEÑADO --- */}
       {editingTicket && (
-        <div className="modal-overlay">
-          <div className="modal-content animate-pop">
-            <div className="modal-header">
-              <h2>Gestionar Ticket #{editingTicket.id}</h2>
-              <button className="btn-close" onClick={handleCloseModal}><CloseIcon /></button>
+        <div className="modal-overlay" style={{
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div className="modal-content animate-pop" style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            width: '90%',
+            maxWidth: '650px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #e2e8f0',
+            padding: 0
+          }}>
+
+            {/* Header del Modal */}
+            <div style={{
+              background: '#0f172a',
+              color: 'white',
+              padding: '20px 25px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '4px solid #3b82f6'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '1px', fontWeight: 'bold' }}>PANEL DE EDICIÓN</span>
+                <h2 style={{ margin: '0', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  Ticket <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '6px', fontSize: '1.1rem', color: '#60a5fa' }}>#{editingTicket.id}</span>
+                </h2>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                style={{
+                  background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer',
+                  padding: '5px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'color 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = 'white'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
 
-            <div className="modal-body">
-              <div className="info-grid">
-                <div className="info-item"><label>Solicitante:</label><span>{editingTicket.name}</span></div>
-                <div className="info-item full-width"><label>Problema:</label><p>{editingTicket.type}</p></div>
-                <div className="info-item full-width"><label>Descripción:</label><p>{editingTicket.description}</p></div>
-                {/* Opcional: Mostrar también el enlace en el modal */}
-                {editingTicket.evidence_url && (
-                  <div className="info-item full-width">
-                    <label>Evidencia:</label>
-                    <a href={`${API_BASE_URL}${editingTicket.evidence_url}`} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>
-                      Ver archivo adjunto
-                    </a>
+            {/* Cuerpo del Modal */}
+            <div style={{ padding: '25px', maxHeight: '70vh', overflowY: 'auto' }}>
+
+              {/* Sección de Información */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+                <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', marginBottom: '5px' }}>
+                    <UserIcon /> <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>SOLICITANTE</span>
                   </div>
-                )}
+                  <p style={{ margin: 0, fontWeight: '600', color: '#1e293b' }}>{editingTicket.name}</p>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', marginBottom: '5px' }}>
+                    <MapPinIcon /> <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ÁREA</span>
+                  </div>
+                  <p style={{ margin: 0, fontWeight: '600', color: '#1e293b' }}>{editingTicket.area}</p>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0', gridColumn: '1 / -1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', marginBottom: '5px' }}>
+                    <TagIcon /> <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>TIPO DE PROBLEMA</span>
+                  </div>
+                  <p style={{ margin: 0, fontWeight: '600', color: '#1e293b' }}>{editingTicket.type}</p>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', border: '1px solid #e2e8f0', gridColumn: '1 / -1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', marginBottom: '5px' }}>
+                    <FileTextIcon /> <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>DESCRIPCIÓN DEL PROBLEMA</span>
+                  </div>
+                  <p style={{ margin: 0, color: '#334155', fontSize: '0.95rem', lineHeight: '1.5' }}>{editingTicket.description || 'Sin descripción adicional.'}</p>
+                </div>
               </div>
 
-              <hr className="modal-divider" />
+              {/* Evidencia */}
+              {editingTicket.evidence && (
+                <div style={{ marginBottom: '25px' }}>
+                  <a
+                    href={`${API_BASE_URL}/uploads/${editingTicket.evidence}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '8px',
+                      background: '#eff6ff', color: '#2563eb', padding: '10px 16px',
+                      borderRadius: '8px', textDecoration: 'none', fontWeight: '600',
+                      border: '1px solid #bfdbfe', fontSize: '0.9rem',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#dbeafe'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#eff6ff'}
+                  >
+                    <EyeIcon />
+                    Visualizar Archivo Adjunto
+                  </a>
+                </div>
+              )}
 
-              <div className="edit-grid">
-                <div className="form-group">
-                  <label>Asignar Técnico</label>
+              {/* Divisor */}
+              <div style={{ borderTop: '2px dashed #e2e8f0', margin: '20px 0', position: 'relative' }}>
+                <span style={{
+                  position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)',
+                  background: 'white', padding: '0 10px', fontSize: '0.8rem', color: '#94a3b8', fontWeight: 'bold'
+                }}>
+                  ZONA DE ASIGNACIÓN
+                </span>
+              </div>
+
+              {/* Controles de Edición */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '30px' }}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>Técnico Responsable</label>
                   <select
                     value={tempData.tech}
                     onChange={(e) => setTempData({ ...tempData, tech: e.target.value })}
+                    style={{
+                      width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1',
+                      background: 'white', outline: 'none', color: '#0f172a', fontSize: '0.95rem', cursor: 'pointer'
+                    }}
                   >
                     <option value="">Sin Asignar</option>
                     {technicians.map((t, index) => (
@@ -374,27 +464,62 @@ const TicketHistory = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label>Estado del Ticket</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>Estado Actual</label>
                   <select
                     value={tempData.status}
                     onChange={(e) => setTempData({ ...tempData, status: e.target.value })}
-                    className={`status-select ${getStatusClass(tempData.status)}`}
+                    style={{
+                      width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1',
+                      background: 'white', outline: 'none', color: '#0f172a', fontSize: '0.95rem', cursor: 'pointer'
+                    }}
                   >
                     <option value="Pendiente">Pendiente</option>
                     <option value="En Proceso">En Proceso</option>
                     <option value="Resuelto">Resuelto</option>
                   </select>
                 </div>
+
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={handleCloseModal}>Cancelar</button>
-              <button className="btn-primary" onClick={handleSaveChanges} disabled={saving}>
+            {/* Footer del Modal */}
+            <div style={{
+              background: '#f8fafc',
+              padding: '16px 25px',
+              borderTop: '1px solid #e2e8f0',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px'
+            }}>
+              <button
+                onClick={handleCloseModal}
+                style={{
+                  padding: '10px 20px', background: 'transparent', border: '1px solid #cbd5e1',
+                  borderRadius: '8px', color: '#64748b', fontWeight: '600', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveChanges}
+                disabled={saving}
+                style={{
+                  padding: '10px 20px', background: '#3b82f6', border: 'none',
+                  borderRadius: '8px', color: 'white', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)', transition: 'background 0.2s',
+                  display: 'flex', alignItems: 'center', gap: '8px'
+                }}
+                onMouseOver={(e) => { if (!saving) e.currentTarget.style.background = '#2563eb' }}
+                onMouseOut={(e) => { if (!saving) e.currentTarget.style.background = '#3b82f6' }}
+              >
                 {saving ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
+
           </div>
         </div>
       )}
@@ -402,4 +527,4 @@ const TicketHistory = () => {
   );
 };
 
-export default TicketHistory;
+export default TicketHistory;   

@@ -42,7 +42,9 @@ const AppRoutes = () => {
             />     
 
        
-            <Route path="/tecnico" element={<TechnicianDashboard />} />
+            <Route path="/tecnico" element={<ProtectedRoute requireAdmin={true}>
+                        <TechnicianDashboard />
+                    </ProtectedRoute>} />
         </Routes>
     )
 }

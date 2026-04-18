@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'http://10.0.153.73:3001/api';
 
 export const api = {
     // Test DB Connection

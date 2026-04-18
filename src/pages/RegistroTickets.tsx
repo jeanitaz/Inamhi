@@ -7,21 +7,27 @@ import logoInamhi from '../assets/lgo.png';
 const SearchIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>);
 const BackIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>);
 
-// 1. INTERFAZ CORREGIDA (Para coincidir con el backend)
+// 1. INTERFAZ ACTUALIZADA CON TODOS LOS CAMPOS
 interface Ticket {
-    id: string;          // Backend envía 'id'
-    status: string;      // Backend envía 'status'
-    name: string;        // Backend envía 'name'
+    id: string;
+    status: string;
+    name: string;
+    cargo: string;
+    email: string;
+    phone: string;
     area: string;
     date: string;
-    type: string;        // Backend envía 'type'
-    description: string; // Backend envía 'description'
+    type: string;
+    otherDetail: string | null;
+    tech: string;
+    description: string;
+    observations: string;
 }
 
 const TicketTracking = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
-    const [ticket, setTicket] = useState<Ticket | null>(null);
+    const [tickets, setTickets] = useState<Ticket[]>([]);
     const [error, setError] = useState('');
 
     const handleSearch = async (e: React.FormEvent) => {
@@ -29,18 +35,17 @@ const TicketTracking = () => {
         if (!searchTerm.trim()) return;
 
         setLoading(true);
-        setTicket(null);
+        setTickets([]); // LIMPIAMOS LA LISTA AL BUSCAR
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:3001/api/tickets/search?term=${encodeURIComponent(searchTerm)}`);
+            const response = await fetch(`http://10.0.153.73:3001/search?term=${encodeURIComponent(searchTerm)}`);
             const data = await response.json();
 
             if (response.ok) {
-                // El backend ya formatea la fecha, usamos 'data' directamente
-                setTicket(data);
+                setTickets(data);
             } else {
-                setError(data.message || 'No se encontró el ticket.');
+                setError(data.message || 'No se encontró ningún ticket.');
             }
         } catch (err) {
             console.error("Error buscando ticket:", err);
@@ -65,12 +70,13 @@ const TicketTracking = () => {
                 <span></span><span></span><span></span><span></span><span></span>
             </div>
 
-            <div className="tracking-card animate-slide-up" style={{ maxWidth: '700px' }}>
+            {/* Aumentamos un poco el maxWidth a 800px para acomodar mejor los datos en 2 columnas */}
+            <div className="tracking-card animate-slide-up" style={{ maxWidth: '800px' }}>
                 <div className="form-header">
                     <Link to="/" className="back-link"><BackIcon /> Volver al Inicio</Link>
                     <img src={logoInamhi} alt="Logo" className="form-logo" />
-                    <h2>Consultar Estado de Ticket</h2>
-                    <p>Rastree el progreso de su solicitud en tiempo real</p>
+                    <h2>Consultar Estado de Tickets</h2>
+                    <p>Busque por su número de ticket o nombre para ver el detalle completo de sus solicitudes</p>
                 </div>
 
                 <form onSubmit={handleSearch} className="search-box-container">
@@ -78,13 +84,13 @@ const TicketTracking = () => {
                         <SearchIcon />
                         <input
                             type="text"
-                            placeholder="Ingrese su número de ticket (Ej: INAMHI-DAF-UTICS-2025-001-ST)..."
+                            placeholder="Ingrese ID (Ej: INAMHI-...) o Nombre del solicitante..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <button type="submit" className="btn-search-action" disabled={loading}>
-                        {loading ? <span className="spinner"></span> : 'Rastrear'}
+                        {loading ? <span className="spinner"></span> : 'Buscar'}
                     </button>
                 </form>
 
@@ -105,52 +111,111 @@ const TicketTracking = () => {
                         </div>
                     )}
 
-                    {!loading && !error && !ticket && (
+                    {!loading && !error && tickets.length === 0 && (
                         <div className="empty-state animate-fade-in">
                             <div className="empty-icon">🔍</div>
                             <p>Ingrese un ID de ticket o nombre para ver los detalles.</p>
                         </div>
                     )}
 
-                    {ticket && (
-                        <div className="ticket-card animate-pop-in">
-                            <div className="ticket-card-header">
-                                <div className="ticket-id-group">
-                                    <span className="ticket-label-small">TICKET ID</span>
-                                    <span className="ticket-id-badge">{ticket.id}</span>
-                                </div>
-                                <span className={`status-badge ${getStatusColor(ticket.status)}`}>
-                                    {ticket.status}
-                                </span>
-                            </div>
+                    {/* RENDERIZAR LA LISTA DE TICKETS CON SCROLL */}
+                    {tickets.length > 0 && (
+                        <div className="tickets-list" style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '1.5rem',
+                            maxHeight: '60vh', /* Altura máxima adaptada a la pantalla */
+                            overflowY: 'auto',  /* Activa el scroll vertical */
+                            paddingRight: '12px'
+                        }}>
+                            {tickets.length > 1 && (
+                                <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#666', margin: '0 0 10px 0' }}>
+                                    Se encontraron {tickets.length} tickets para "{searchTerm}"
+                                </p>
+                            )}
 
-                            <div className="ticket-progress-bar">
-                                <div className={`progress-fill ${getStatusColor(ticket.status)}`} style={{ width: ticket.status === 'Resuelto' ? '100%' : '50%' }}></div>
-                            </div>
+                            {tickets.map((ticket) => (
+                                <div key={ticket.id} className="ticket-card animate-pop-in" style={{ 
+                                    padding: '1.5rem', 
+                                    border: '1px solid #e0e0e0', 
+                                    borderRadius: '8px', 
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)', 
+                                    backgroundColor: '#fff',
+                                    flexShrink: 0 /* <--- AQUÍ ESTÁ LA SOLUCIÓN IMPLEMENTADA */
+                                }}>
 
-                            <div className="ticket-details">
-                                <div className="detail-row">
-                                    <span className="label">Solicitante</span>
-                                    <span className="value">{ticket.name}</span>
-                                </div>
-                                <div className="detail-row">
-                                    <span className="label">Área</span>
-                                    <span className="value">{ticket.area}</span>
-                                </div>
-                                <div className="detail-row">
-                                    <span className="label">Fecha</span>
-                                    <span className="value">{ticket.date}</span>
-                                </div>
-                                <div className="detail-row">
-                                    <span className="label">Tipo</span>
-                                    <span className="value">{ticket.type}</span>
-                                </div>
-                            </div>
+                                    {/* Cabecera del Ticket */}
+                                    <div className="ticket-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                        <div className="ticket-id-group">
+                                            <span className="ticket-label-small" style={{ fontSize: '0.75rem', color: '#888', display: 'block', letterSpacing: '0.5px' }}>TICKET ID</span>
+                                            <span className="ticket-id-badge" style={{ fontWeight: 'bold', color: '#0056b3', fontSize: '1.1rem' }}>{ticket.id}</span>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span className={`status-badge ${getStatusColor(ticket.status)}`} style={{ marginBottom: '5px', display: 'inline-block' }}>
+                                                {ticket.status}
+                                            </span>
+                                            <span style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Fecha: {ticket.date}</span>
+                                        </div>
+                                    </div>
 
-                            <div className="ticket-description">
-                                <span className="label">Descripción del Problema</span>
-                                <p>{ticket.description}</p>
-                            </div>
+                                    {/* Barra de Progreso */}
+                                    <div className="ticket-progress-bar" style={{ height: '6px', background: '#e9ecef', borderRadius: '3px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+                                        <div className={`progress-fill ${getStatusColor(ticket.status)}`} style={{ height: '100%', transition: 'width 0.3s ease', width: ticket.status.toLowerCase() === 'resuelto' ? '100%' : '50%' }}></div>
+                                    </div>
+
+                                    {/* Detalles del Ticket (Cuadrícula 2 columnas) */}
+                                    <div className="ticket-details" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Solicitante</span>
+                                            <span className="value" style={{ fontWeight: '600', color: '#333' }}>{ticket.name}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Cargo</span>
+                                            <span className="value" style={{ fontWeight: '500', color: '#444' }}>{ticket.cargo}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Correo Institucional</span>
+                                            <span className="value" style={{ fontWeight: '500', color: '#444' }}>{ticket.email}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Teléfono</span>
+                                            <span className="value" style={{ fontWeight: '500', color: '#444' }}>{ticket.phone}</span>
+                                        </div>
+                                        <div className="detail-row" style={{ gridColumn: '1 / -1' }}>
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Dirección / Área</span>
+                                            <span className="value" style={{ fontWeight: '500', color: '#444' }}>{ticket.area}</span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Tipo de Requerimiento</span>
+                                            <span className="value" style={{ fontWeight: '500', color: '#444' }}>
+                                                {ticket.type}
+                                                {ticket.otherDetail ? ` - (${ticket.otherDetail})` : ''}
+                                            </span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="label" style={{ display: 'block', color: '#666', fontSize: '0.8rem', textTransform: 'uppercase' }}>Técnico Asignado</span>
+                                            <span className="value" style={{ fontWeight: '600', color: ticket.tech === 'Sin Asignar' ? '#dc3545' : '#198754' }}>
+                                                {ticket.tech}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Descripción */}
+                                    <div className="ticket-description" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', borderLeft: '4px solid #0056b3' }}>
+                                        <span className="label" style={{ display: 'block', color: '#555', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Descripción del Problema</span>
+                                        <p style={{ margin: 0, color: '#333', lineHeight: '1.5' }}>{ticket.description}</p>
+                                    </div>
+
+                                    {/* Observaciones (Solo se muestra si hay alguna) */}
+                                    {ticket.observations && ticket.observations !== 'Ninguna' && (
+                                        <div className="ticket-observations" style={{ background: '#fff8e1', padding: '1rem', borderRadius: '6px', fontSize: '0.95rem', borderLeft: '4px solid #ffc107', marginTop: '1rem' }}>
+                                            <span className="label" style={{ display: 'block', color: '#664d03', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Observaciones Adicionales</span>
+                                            <p style={{ margin: 0, color: '#333', lineHeight: '1.5' }}>{ticket.observations}</p>
+                                        </div>
+                                    )}
+
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>

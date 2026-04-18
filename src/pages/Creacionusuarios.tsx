@@ -36,7 +36,7 @@ const CreacionUsuarios = () => {
     // =================================================================
     // 1. IP DEL SERVIDOR (IMPORTANTE: CAMBIADO DE LOCALHOST A IP REAL)
     // =================================================================
-    const API_URL = 'http://localhost:3001/api/usuarios';
+    const API_URL = 'http://10.0.153.73:3001/api/usuarios';
 
     // --- CARGAR USUARIOS ---
     useEffect(() => {
