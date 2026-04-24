@@ -138,8 +138,8 @@ app.get('/search', (req, res) => {
             tech: ticket.tecnico_asignado || 'Sin Asignar',
             description: ticket.descripcion_problema || 'Sin descripción',
             observations: ticket.observaciones_adicionales || 'Ninguna',
-            // NUEVO: Pasamos el nombre del archivo al frontend
-            evidence: ticket.archivo_evidencia 
+            evidence: ticket.archivo_evidencia,
+            id_area: ticket.id_area
         }));
         
         res.json(formattedTickets);
@@ -149,7 +149,7 @@ app.get('/search', (req, res) => {
 // 4. OBTENER HISTORIAL (ACTUALIZADO PARA DEVOLVER EL ARCHIVO)
 app.get('', (req, res) => {
     const sql = `
-    SELECT t.id_ticket, t.nombre_completo, c_area.nombre_area AS area,
+    SELECT t.id_ticket, t.id_area, t.nombre_completo, c_area.nombre_area AS area,
         c_tipo.nombre_tipo AS tipo, t.estado, t.fecha_creacion,
         t.tecnico_asignado, t.descripcion_problema, t.archivo_evidencia
     FROM tickets_soporte t
@@ -175,8 +175,8 @@ app.get('', (req, res) => {
                 status: ticket.estado,
                 tech: techName,
                 description: ticket.descripcion_problema,
-                // NUEVO: Pasamos el nombre del archivo al frontend
-                evidence: ticket.archivo_evidencia
+                evidence: ticket.archivo_evidencia,
+                id_area: ticket.id_area
             };
         });
         res.json(history);

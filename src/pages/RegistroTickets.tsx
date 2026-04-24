@@ -22,7 +22,51 @@ interface Ticket {
     tech: string;
     description: string;
     observations: string;
+    id_area?: number;
 }
+
+const AREAS_INSTITUCIONALES = [
+    { id: 1, nombre: "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN" },
+    { id: 2, nombre: "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA" },
+    { id: 3, nombre: "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS" },
+    { id: 4, nombre: "DIRECCIÓN ADMINISTRATIVA FINANCIERA" },
+    { id: 5, nombre: "DIRECCIÓN EJECUTIVA" },
+    { id: 6, nombre: "DIRECCIÓN DE ASESORÍA JURÍDICA" },
+    { id: 7, nombre: "DIRECCIÓN DE COMUNICACIÓN SOCIAL" },
+    { id: 8, nombre: "DIRECCIÓN DE PLANIFICACIÓN" },
+    { id: 9, nombre: "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS" },
+    { id: 10, nombre: "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO" },
+    { id: 11, nombre: "DIRECCIÓN DE LA RED NACIONAL DE OBSERVACIÓN HIDROMETEOROLÓGICA" },
+    { id: 12, nombre: "LABORATORIO NACIONAL DE CALIDAD DE AGUA Y SEDIMENTOS" }
+];
+
+const getAreaFromBackendString = (backendName: string, id_area?: number) => {
+    if (id_area) {
+        const exactArea = AREAS_INSTITUCIONALES.find(a => a.id.toString() === id_area.toString());
+        if (exactArea) return exactArea.nombre;
+    }
+
+    if (!backendName) return 'Sin Área';
+    const upperName = backendName.toUpperCase();
+
+    const exactMatch = AREAS_INSTITUCIONALES.find(a => a.nombre.toUpperCase() === upperName);
+    if (exactMatch) return exactMatch.nombre;
+
+    if (upperName.includes("HIDROLOGÍA")) return "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA";
+    if (upperName.includes("JURÍDICA")) return "DIRECCIÓN DE ASESORÍA JURÍDICA";
+    if (upperName.includes("COMUNICACIÓN")) return "DIRECCIÓN DE COMUNICACIÓN SOCIAL";
+    if (upperName.includes("EJECUTIVA") || upperName.includes("TÉCNICA")) return "DIRECCIÓN EJECUTIVA";
+    if (upperName.includes("ADMINISTRATIVA") || upperName.includes("FINANCIERA")) return "DIRECCIÓN ADMINISTRATIVA FINANCIERA";
+    if (upperName.includes("RECURSOS HUMANOS")) return "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS";
+    if (upperName.includes("TECNOLOGÍAS") || upperName.includes("INFORMACIÓN Y COMUNICACIÓN")) return "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN";
+    if (upperName.includes("PLANIFICACIÓN")) return "DIRECCIÓN DE PLANIFICACIÓN";
+    if (upperName.includes("PRONÓSTICOS")) return "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS";
+    if (upperName.includes("ESTUDIOS")) return "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO";
+    if (upperName.includes("OBSERVACIÓN")) return "DIRECCIÓN DE LA RED NACIONAL DE OBSERVACIÓN HIDROMETEOROLÓGICA";
+    if (upperName.includes("AGUA Y SEDIMENTOS")) return "LABORATORIO NACIONAL DE CALIDAD DE AGUA Y SEDIMENTOS";
+
+    return upperName;
+};
 
 const TicketTracking = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +87,11 @@ const TicketTracking = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setTickets(data);
+                const mappedData = data.map((t: Ticket) => ({
+                    ...t,
+                    area: getAreaFromBackendString(t.area, t.id_area)
+                }));
+                setTickets(mappedData);
             } else {
                 setError(data.message || 'No se encontró ningún ticket.');
             }

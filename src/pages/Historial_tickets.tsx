@@ -24,6 +24,21 @@ const TagIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none
 const FileTextIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
 const MapPinIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
 
+const AREAS_INSTITUCIONALES = [
+    { id: 1, nombre: "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN" },
+    { id: 2, nombre: "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA" },
+    { id: 3, nombre: "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS" },
+    { id: 4, nombre: "DIRECCIÓN ADMINISTRATIVA FINANCIERA" },
+    { id: 5, nombre: "DIRECCIÓN EJECUTIVA" },
+    { id: 6, nombre: "DIRECCIÓN DE ASESORÍA JURÍDICA" },
+    { id: 7, nombre: "DIRECCIÓN DE COMUNICACIÓN SOCIAL" },
+    { id: 8, nombre: "DIRECCIÓN DE PLANIFICACIÓN" },
+    { id: 9, nombre: "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS" },
+    { id: 10, nombre: "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO" },
+    { id: 11, nombre: "DIRECCIÓN DE LA RED NACIONAL DE OBSERVACIÓN HIDROMETEOROLÓGICA" },
+    { id: 12, nombre: "LABORATORIO NACIONAL DE CALIDAD DE AGUA Y SEDIMENTOS" }
+];
+
 interface Ticket {
   id: string;
   date: string;
@@ -34,7 +49,39 @@ interface Ticket {
   status: string;
   description?: string;
   evidence?: string;
+  id_area?: number;
 }
+
+const getAreaFromBackendString = (backendName: string, id_area?: number) => {
+    // Si viene el ID del backend (cuando lo actualicen), úsalo.
+    if (id_area) {
+        const exactArea = AREAS_INSTITUCIONALES.find(a => a.id.toString() === id_area.toString());
+        if (exactArea) return exactArea.nombre;
+    }
+
+    if (!backendName) return 'Sin Área';
+    const upperName = backendName.toUpperCase();
+
+    // Buscar coincidencia exacta
+    const exactMatch = AREAS_INSTITUCIONALES.find(a => a.nombre.toUpperCase() === upperName);
+    if (exactMatch) return exactMatch.nombre;
+
+    // Búsqueda difusa para los nombres cruzados del backend
+    if (upperName.includes("HIDROLOGÍA")) return "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA";
+    if (upperName.includes("JURÍDICA")) return "DIRECCIÓN DE ASESORÍA JURÍDICA";
+    if (upperName.includes("COMUNICACIÓN")) return "DIRECCIÓN DE COMUNICACIÓN SOCIAL";
+    if (upperName.includes("EJECUTIVA") || upperName.includes("TÉCNICA")) return "DIRECCIÓN EJECUTIVA";
+    if (upperName.includes("ADMINISTRATIVA") || upperName.includes("FINANCIERA")) return "DIRECCIÓN ADMINISTRATIVA FINANCIERA";
+    if (upperName.includes("RECURSOS HUMANOS")) return "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS";
+    if (upperName.includes("TECNOLOGÍAS") || upperName.includes("INFORMACIÓN Y COMUNICACIÓN")) return "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN";
+    if (upperName.includes("PLANIFICACIÓN")) return "DIRECCIÓN DE PLANIFICACIÓN";
+    if (upperName.includes("PRONÓSTICOS")) return "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS";
+    if (upperName.includes("ESTUDIOS")) return "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO";
+    if (upperName.includes("OBSERVACIÓN")) return "DIRECCIÓN DE LA RED NACIONAL DE OBSERVACIÓN HIDROMETEOROLÓGICA";
+    if (upperName.includes("AGUA Y SEDIMENTOS")) return "LABORATORIO NACIONAL DE CALIDAD DE AGUA Y SEDIMENTOS";
+
+    return upperName;
+};
 
 interface TechUser {
   nombre_completo: string;
@@ -63,7 +110,11 @@ const TicketHistory = () => {
       const response = await fetch(`${API_BASE_URL}`);
       if (response.ok) {
         const data = await response.json();
-        setAllTickets(data);
+        const mappedData = data.map((t: Ticket) => ({
+            ...t,
+            area: getAreaFromBackendString(t.area, t.id_area)
+        }));
+        setAllTickets(mappedData);
       }
     } catch (error) {
       console.error("Error cargando tickets:", error);
