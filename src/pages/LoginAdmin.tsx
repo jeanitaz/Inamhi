@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import '../styles/LoginAdmin.css';
 import logoInamhi from '../assets/lgo.png';
 
@@ -27,7 +28,7 @@ const LoginAdmin = () => {
     // =================================================================
     // 2. IP DEL SERVIDOR (IMPORTANTE: APUNTAR AL SERVIDOR, NO LOCALHOST)
     // =================================================================
-    const API_LOGIN_URL = 'http://10.0.153.73:3001/api/login';
+    const API_LOGIN_URL = `${API_BASE_URL}/api/login`;
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

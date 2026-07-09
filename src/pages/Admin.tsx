@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from '../config';
 import Reloj from "../components/reloj"; // <--- IMPORTACIÓN ACTIVADA
 import logoInamhi from '../assets/lgo.png';
 import "../styles/Admin.css";
@@ -54,7 +55,7 @@ export default function Admin() {
     useEffect(() => {
         const fetchMetrics = async () => {
             try {
-                const response = await fetch('http://10.0.153.73:3001');
+                const response = await fetch(`${API_BASE_URL}`);
                 if (response.ok) {
                     const data = await response.json();
                     setTickets(data); // Guardamos todos los tickets
@@ -132,6 +133,12 @@ export default function Admin() {
                         </button>
                         <button className="nav-item" onClick={() => navigate('/usuarios')}>
                             <span className="icon">👥</span> Usuarios
+                        </button>
+                        <button className="nav-item" onClick={() => navigate('/ranking')}>
+                            <span className="icon">⭐</span> Ranking
+                        </button>
+                        <button className="nav-item" onClick={() => navigate('/opiniones')}>
+                            <span className="icon">💬</span> Opiniones
                         </button>
                     </div>
 

@@ -13,6 +13,8 @@ import Admin from "../pages/Admin";
 import CreacionUsuarios from "../pages/Creacionusuarios";
 import TechnicianDashboard from "../pages/Usuarios";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Ranking from "../pages/Ranking";
+import OpinionesRecientes from "../pages/OpinionesRecientes";
 
 const AppRoutes = () => {
     return (
@@ -45,6 +47,23 @@ const AppRoutes = () => {
             <Route path="/tecnico" element={<ProtectedRoute requireAdmin={true}>
                         <TechnicianDashboard />
                     </ProtectedRoute>} />
+
+            <Route 
+                path="/ranking" 
+                element={
+                    <ProtectedRoute requireAdmin={true}>
+                        <Ranking />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/opiniones" 
+                element={
+                    <ProtectedRoute requireAdmin={true}>
+                        <OpinionesRecientes />
+                    </ProtectedRoute>
+                } 
+            />
         </Routes>
     )
 }

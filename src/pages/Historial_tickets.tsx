@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL as API_BASE_URL_CONFIG } from '../config';
 import * as XLSX from 'xlsx';
 import '../styles/Historial.css';
 import logoInamhi from '../assets/lgo.png';
@@ -25,18 +27,27 @@ const FileTextIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill=
 const MapPinIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
 
 const AREAS_INSTITUCIONALES = [
-    { id: 1, nombre: "TECNOLOGÍAS DE LA INFORMACIÓN Y COMUNICACIÓN" },
-    { id: 2, nombre: "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA" },
-    { id: 3, nombre: "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS" },
-    { id: 4, nombre: "DIRECCIÓN ADMINISTRATIVA FINANCIERA" },
-    { id: 5, nombre: "DIRECCIÓN EJECUTIVA" },
-    { id: 6, nombre: "DIRECCIÓN DE ASESORÍA JURÍDICA" },
-    { id: 7, nombre: "DIRECCIÓN DE COMUNICACIÓN SOCIAL" },
-    { id: 8, nombre: "DIRECCIÓN DE PLANIFICACIÓN" },
-    { id: 9, nombre: "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS" },
-    { id: 10, nombre: "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO" },
-    { id: 11, nombre: "DIRECCIÓN DE LA RED NACIONAL DE OBSERVACIÓN HIDROMETEOROLÓGICA" },
-    { id: 12, nombre: "LABORATORIO NACIONAL DE CALIDAD DE AGUA Y SEDIMENTOS" }
+    { id: 1, nombre: "COORDINACIÓN DE LA GESTIÓN INSTITUCIONAL SEDE GUAYAQUIL" },
+    { id: 2, nombre: "COORDINACIÓN DE LA GESTIÓN INSTITUCIONAL SEDE LOJA" },
+    { id: 3, nombre: "COORDINACIÓN DE LA GESTIÓN INSTITUCIONAL SEDE QUITO" },
+    { id: 4, nombre: "COORDINACIÓN DE LA GESTIÓN INSTITUCIONAL SEDE RIOBAMBA" },
+    { id: 5, nombre: "DIRECCIÓN ADMINISTRATIVA FINANCIERA" },
+    { id: 6, nombre: "DIRECCIÓN DE ADMINISTRACIÓN DE RECURSOS HUMANOS" },
+    { id: 7, nombre: "DIRECCIÓN DE ASESORÍA JURÍDICA" },
+    { id: 8, nombre: "DIRECCIÓN DE COMUNICACIÓN SOCIAL" },
+    { id: 9, nombre: "DIRECCIÓN DE ESTUDIOS, INVESTIGACIÓN Y DESARROLLO HIDROMETEOROLÓGICO" },
+    { id: 10, nombre: "DIRECCIÓN DE INFORMACIÓN HIDROMETEOROLÓGICA" },
+    { id: 11, nombre: "DIRECCIÓN DE LA RED DE OBSERVACIÓN HIDROMETEOROLÓGICA" },
+    { id: 12, nombre: "DIRECCIÓN DE LABORATORIOS DE CALIDAD DE AGUAS Y SEDIMENTOS" },
+    { id: 13, nombre: "DIRECCIÓN DE PLANIFICACIÓN" },
+    { id: 14, nombre: "DIRECCIÓN DE PRONÓSTICOS Y ALERTAS HIDROMETEOROLÓGICAS" },
+    { id: 15, nombre: "DIRECCIÓN EJECUTIVA" },
+    { id: 16, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA - MANABI" },
+    { id: 17, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA - NAPO" },
+    { id: 18, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA - PASTAZA" },
+    { id: 19, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA ESMERALDAS - MIRA" },
+    { id: 20, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA GUAYAS - GALAPAGOS" },
+    { id: 21, nombre: "DIRECCIÓN REGIONAL TÉCNICA HIDROMETEOROLÓGICA MORONA SANTIAGO" }
 ];
 
 interface Ticket {
@@ -50,6 +61,8 @@ interface Ticket {
   description?: string;
   evidence?: string;
   id_area?: number;
+  tiempo_estimado?: string;
+  estimated_time?: string;
 }
 
 const getAreaFromBackendString = (backendName: string, id_area?: number) => {
@@ -88,7 +101,7 @@ interface TechUser {
 }
 
 const TicketHistory = () => {
-  const API_BASE_URL = 'http://10.0.153.73:3001';
+  const API_BASE_URL = API_BASE_URL_CONFIG;
 
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [technicians, setTechnicians] = useState<TechUser[]>([]);
@@ -97,7 +110,9 @@ const TicketHistory = () => {
   const [loading, setLoading] = useState(true);
 
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
-  const [tempData, setTempData] = useState<{ tech: string; status: string }>({ tech: '', status: '' });
+  const [tempData, setTempData] = useState<{ tech: string; status: string; tiempo_estimado: string }>({ tech: '', status: '', tiempo_estimado: '' });
+  const [estNum, setEstNum] = useState<string>('');
+  const [estUnit, setEstUnit] = useState<string>('Horas');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -183,12 +198,40 @@ const TicketHistory = () => {
     XLSX.writeFile(wb, `Reporte_Tickets_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleEstNumChange = (val: string) => {
+    setEstNum(val);
+    const newVal = val ? `${val} ${estUnit}` : 'No establecido';
+    setTempData(prev => ({ ...prev, tiempo_estimado: newVal }));
+  };
+
+  const handleEstUnitChange = (val: string) => {
+    setEstUnit(val);
+    const newVal = estNum ? `${estNum} ${val}` : 'No establecido';
+    setTempData(prev => ({ ...prev, tiempo_estimado: newVal }));
+  };
+
   const handleOpenModal = (ticket: Ticket) => {
     setEditingTicket(ticket);
+    
+    let num = '';
+    let unit = 'Horas';
+    
+    const estTime = ticket.tiempo_estimado || ticket.estimated_time;
+    if (estTime && estTime !== 'No establecido') {
+      const match = estTime.match(/^(\d+)\s+(.+)$/);
+      if (match) {
+        num = match[1];
+        unit = match[2];
+      }
+    }
+
     setTempData({
       tech: ticket.tech === 'Sin Asignar' ? '' : ticket.tech,
-      status: ticket.status || 'Pendiente'
+      status: ticket.status || 'Pendiente',
+      tiempo_estimado: estTime || 'No establecido'
     });
+    setEstNum(num);
+    setEstUnit(unit);
   };
 
   const handleCloseModal = () => {
@@ -213,7 +256,8 @@ const TicketHistory = () => {
               ? {
                 ...ticket,
                 ...tempData,
-                tech: tempData.tech || 'Sin Asignar'
+                tech: tempData.tech || 'Sin Asignar',
+                estimated_time: tempData.tiempo_estimado
               }
               : ticket
           )
@@ -529,6 +573,36 @@ const TicketHistory = () => {
                     <option value="En Proceso">En Proceso</option>
                     <option value="Resuelto">Resuelto</option>
                   </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>Tiempo Estimado de Resolución</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Ej: 3"
+                      value={estNum}
+                      onChange={(e) => handleEstNumChange(e.target.value)}
+                      style={{
+                        width: '70px', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1',
+                        background: 'white', outline: 'none', color: '#0f172a', fontSize: '0.95rem'
+                      }}
+                    />
+                    <select
+                      value={estUnit}
+                      onChange={(e) => handleEstUnitChange(e.target.value)}
+                      style={{
+                        flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1',
+                        background: 'white', outline: 'none', color: '#0f172a', fontSize: '0.95rem', cursor: 'pointer'
+                      }}
+                    >
+                      <option value="Horas">Horas</option>
+                      <option value="Días">Días</option>
+                      <option value="Semanas">Semanas</option>
+                      <option value="Meses">Meses</option>
+                    </select>
+                  </div>
                 </div>
 
               </div>

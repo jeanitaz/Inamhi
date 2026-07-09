@@ -1,4 +1,6 @@
-const API_URL = 'http://10.0.153.73:3001/api';
+import { API_BASE_URL } from '../config';
+
+const API_URL = `${API_BASE_URL}/api`;
 
 export const api = {
     // Test DB Connection

@@ -1,5 +1,6 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import '../styles/CreUsuarios.css';
 
 interface Usuario {
@@ -36,7 +37,7 @@ const CreacionUsuarios = () => {
     // =================================================================
     // 1. IP DEL SERVIDOR (IMPORTANTE: CAMBIADO DE LOCALHOST A IP REAL)
     // =================================================================
-    const API_URL = 'http://10.0.153.73:3001/api/usuarios';
+    const API_URL = `${API_BASE_URL}/api/usuarios`;
 
     // --- CARGAR USUARIOS ---
     useEffect(() => {

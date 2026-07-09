@@ -1,0 +1,408 @@
+/* Estilos para la Vista Independiente de Opiniones y Feedback - INAMHI */
+
+.opiniones-layout {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-y: auto;
+  background: #0f172a; /* Slate 900 */
+  color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Estrellas y Glow de fondo */
+.opiniones-bg-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+  background-size: 550px 550px, 350px 350px, 250px 250px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.opiniones-bg-glow {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(15, 23, 42, 0) 60%);
+  pointer-events: none;
+}
+
+.opiniones-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* Cabecera */
+.opiniones-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.header-brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.btn-back-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.btn-back-circle:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  transform: translateX(-4px);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.brand-logo {
+  height: 48px;
+  object-fit: contain;
+}
+
+.header-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.opiniones-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.opiniones-subtitle {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+}
+
+.opiniones-subtitle strong {
+  color: #3b82f6;
+}
+
+/* Glass Panels */
+.glass-panel {
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Grid de opiniones */
+.opiniones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+/* Tarjeta de opinión individual */
+.opinion-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+  transition: all 0.3s ease;
+}
+
+.opinion-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.user-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comment-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.solicitante-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.ticket-id-ref {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.comment-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0.8rem;
+}
+
+.comment-date {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+.comment-text-body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0 0 1.2rem 0;
+  font-style: italic;
+  flex-grow: 1;
+}
+
+.comment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.8rem;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.comment-tech-assigned {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+/* Estado Vacío */
+.empty-feed-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+.empty-feed-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.empty-feed-state p {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* Controles de Paginación */
+.opiniones-pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.pagination-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-arrow-btn:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+}
+
+.pagination-arrow-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-number-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-number-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.pagination-number-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Spinner de carga */
+.loading-state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  color: #94a3b8;
+}
+
+.spinner-glow {
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(255, 255, 255, 0.05);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-enter {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajustes Responsivos */
+@media (max-width: 640px) {
+  .opiniones-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .opiniones-title {
+    font-size: 1.5rem;
+  }
+  
+  .opiniones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Filter Bar Styles */
+.filter-bar-panel {
+  padding: 1.2rem 1.8rem !important;
+  background: rgba(30, 41, 59, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.filter-group select:hover,
+.custom-dates-group input:hover {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  background: rgba(30, 41, 59, 0.9) !important;
+}
+
+.filter-group select:focus,
+.custom-dates-group input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+  background: rgba(15, 23, 42, 0.9) !important;
+}
+
+.btn-apply-filter:hover {
+  background: #1d4ed8 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+
+.btn-apply-filter:active {
+  transform: translateY(0);
+}

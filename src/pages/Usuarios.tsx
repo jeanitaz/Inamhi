@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 import logoInamhi from '../assets/lgo.png';
 import "../styles/Tecnico.css";
 
@@ -60,7 +61,7 @@ export default function TechnicianDashboard() {
 
     const fetchTickets = async () => {
         try {
-            const response = await fetch('http://10.0.153.73:3001');
+            const response = await fetch(`${API_BASE_URL}`);
             if (response.ok) {
                 const data = await response.json();
                 setTickets(data.map((t: Ticket) => ({ ...t, prio: "Media", desc: t.type })));
@@ -81,7 +82,7 @@ export default function TechnicianDashboard() {
 
     const tomarTicket = async (id: Ticket['id']) => {
         try {
-            const response = await fetch(`http://10.0.153.73:3001/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/${id}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tech: currentUser, status: 'En Proceso' }),
             });
@@ -97,7 +98,7 @@ export default function TechnicianDashboard() {
         if (!ticketToResolve) return;
         setIsResolving(true);
         try {
-            const response = await fetch(`http://10.0.153.73:3001/${ticketToResolve}`, {
+            const response = await fetch(`${API_BASE_URL}/${ticketToResolve}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'Resuelto' }),
             });
@@ -244,7 +245,7 @@ export default function TechnicianDashboard() {
                                 <div className="mp-section">
                                     <label>EVIDENCIA ADJUNTA</label>
                                     {selectedTicket.evidence ? (
-                                        <a href={`http://10.0.153.73:3001/uploads/${selectedTicket.evidence}`} target="_blank" rel="noopener noreferrer" className="mp-evidence-link">
+                                        <a href={`${API_BASE_URL}/uploads/${selectedTicket.evidence}`} target="_blank" rel="noopener noreferrer" className="mp-evidence-link">
                                             <EyeIcon /> Ver documento / imagen adjunta
                                         </a>
                                     ) : (

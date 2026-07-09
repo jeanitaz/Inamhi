@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { API_BASE_URL } from '../config';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     PieChart, Pie, Cell, AreaChart, Area
@@ -48,7 +49,7 @@ const ReportsView = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://10.0.153.73:3001');
+                const response = await fetch(`${API_BASE_URL}`);
                 if (response.ok) {
                     const tickets: Ticket[] = await response.json();
                     processTicketData(tickets);
